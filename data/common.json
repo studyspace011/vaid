@@ -1,0 +1,13 @@
+{"papers":[
+ {"id": "common-aec1", "sem": 1, "dept": "Common", "ab": "", "type": "AEC", "code": "AEC-1", "name": "Disaster Risk Management", "cr": 2, "syl": 0, "notes": 0},
+ {"id": "common-aec2", "sem": 2, "dept": "Common", "ab": "", "type": "AEC", "code": "AEC-2", "name": "Disaster Risk Management", "cr": 2, "syl": 0, "notes": 0},
+ {"id": "common-aec3", "sem": 3, "dept": "Common", "ab": "", "type": "AEC", "code": "AEC-3", "name": "Disaster Risk Management", "cr": 2, "syl": 0, "notes": 0},
+ {"id": "common-aec4", "sem": 4, "dept": "Common", "ab": "", "type": "AEC", "code": "AEC-4", "name": "NCC/NSS, NGOs/Social Service/Scout & Guide/Sports", "cr": 2, "syl": 0, "notes": 0},
+ {"id": "common-sec1", "sem": 1, "dept": "Common", "ab": "", "type": "SEC", "code": "SEC-1", "name": "Skill Enhancement Course", "cr": 3, "syl": 0, "notes": 0},
+ {"id": "common-sec2", "sem": 2, "dept": "Common", "ab": "", "type": "SEC", "code": "SEC-2", "name": "Skill Enhancement Course", "cr": 3, "syl": 0, "notes": 0},
+ {"id": "common-sec3", "sem": 3, "dept": "Common", "ab": "", "type": "SEC", "code": "SEC-3", "name": "Skill Enhancement Course", "cr": 3, "syl": 0, "notes": 0},
+ {"id": "common-vac1", "sem": 1, "dept": "Common", "ab": "", "type": "VAC", "code": "VAC-1", "name": "Swachh Bharat", "cr": 0, "syl": 0, "notes": 0},
+ {"id": "common-vac2", "sem": 2, "dept": "Common", "ab": "", "type": "VAC", "code": "VAC-2", "name": "Swachh Bharat", "cr": 0, "syl": 0, "notes": 0},
+ {"id": "common-int1", "sem": 5, "dept": "Common", "ab": "", "type": "INT", "code": "INT-1", "name": "Internship", "cr": 4, "syl": 0, "notes": 0},
+ {"id": "common-rp1", "sem": 8, "dept": "Common", "ab": "", "type": "RP", "code": "RP-1", "name": "Research Project / Dissertation", "cr": 12, "syl": 0, "notes": 0}
+]}

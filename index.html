@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#f4efe6">
+<title>Aavid Notes</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#f4efe6;--card:#fff;--ink:#2b1b0e;--mute:#7a6a58;--line:#e6dccb;--gold:#e8a920;--amber:#b86e00;--brown:#3a1f0a;--soft:#f1e8d8;
+--serif:'Playfair Display',Georgia,serif;--sans:'Inter',system-ui,sans-serif}
+*{box-sizing:border-box;margin:0;-webkit-tap-highlight-color:transparent}
+html,body{background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:16px;line-height:1.5}
+body{padding:env(safe-area-inset-top) 0 calc(96px + env(safe-area-inset-bottom))}
+button{font:inherit;color:inherit;cursor:pointer;border:0;background:none}
+:focus-visible{outline:2px solid var(--amber);outline-offset:2px}
+#splash{position:fixed;inset:0;z-index:50;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:28px;background:radial-gradient(circle at 50% 42%,#fde39a 0%,#f3c13f 45%,#a9741a 100%);transition:opacity .5s}
+#splash.out{opacity:0;pointer-events:none}
+.ring{position:relative;width:176px;height:176px;display:grid;place-items:center}
+.ring::before{content:"";position:absolute;inset:0;border-radius:50%;border:3px solid transparent;border-top-color:var(--amber);border-right-color:var(--amber);animation:spin 1.4s linear infinite}
+.logo{width:136px;height:136px;border-radius:50%;border:4px solid #fff8e6;background:var(--brown);color:#fde39a;display:grid;place-items:center;overflow:hidden;font:700 64px var(--serif)}
+.logo img{width:100%;height:100%;object-fit:cover}
+#splash h1{font:700 34px var(--serif);color:var(--brown)}
+#splash p{font-size:12px;letter-spacing:.28em;color:#6b4513;text-transform:uppercase;margin-top:-18px}
+.bar{width:220px;height:4px;border-radius:4px;background:rgba(58,31,10,.18);overflow:hidden}
+.bar i{display:block;height:100%;width:0;background:var(--brown);animation:fill 1.5s ease-out forwards}
+@keyframes spin{to{transform:rotate(360deg)}}@keyframes fill{to{width:100%}}@keyframes in{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+#view.in{animation:in .22s ease}
+@media(prefers-reduced-motion:reduce){.ring::before,#view.in{animation:none}.bar i{animation:none;width:100%}}
+header{position:sticky;top:0;z-index:10;display:flex;align-items:center;gap:10px;padding:10px 16px;background:rgba(244,239,230,.94);backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
+.ib{width:42px;height:42px;border-radius:14px;background:var(--brown);color:#fff;display:grid;place-items:center;font-size:18px}
+.ib[hidden]{display:none}
+.brand{flex:1;display:flex;align-items:center;gap:10px;font:700 19px var(--serif)}
+.brand .logo{width:34px;height:34px;border-width:2px;font-size:17px}
+main{padding:16px;max-width:640px;margin:0 auto}
+.crumbs{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:18px}
+.crumbs button{padding:6px 12px;border-radius:999px;background:var(--card);border:1px solid var(--line);font-size:13px}
+.crumbs button:last-child{background:var(--brown);color:#fff;border-color:var(--brown)}
+h2{font:700 28px/1.2 var(--serif);margin-bottom:4px}
+.sub{color:var(--mute);font-size:14px;margin-bottom:18px}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.list{display:flex;flex-direction:column;gap:10px}
+.item{display:flex;align-items:center;justify-content:space-between;gap:12px;text-align:left;padding:16px 18px;border-radius:18px;background:var(--card);border:1px solid var(--line);transition:transform .12s}
+.item:active{transform:scale(.98)}
+.item b{display:block;font-weight:600}
+.item small{color:var(--mute);font-size:13px}
+.item .go{color:var(--amber);font-size:20px}
+.sem{flex-direction:column;align-items:flex-start;justify-content:center;min-height:92px}
+.sem b{font:700 34px var(--serif);color:var(--amber);line-height:1}
+.code{font-size:12px;font-weight:600;color:var(--amber);letter-spacing:.04em}
+.sheet{background:var(--card);border:1px solid var(--line);border-radius:22px;padding:20px}
+.top{display:flex;justify-content:space-between;align-items:center}
+.star{padding:8px 14px;border-radius:999px;background:var(--soft);font-weight:600;font-size:14px}
+.star.on{background:var(--gold);color:var(--brown)}
+.sheet h3{font:700 24px/1.25 var(--serif);margin:8px 0 4px}
+.meta{color:var(--mute);font-size:13px;margin-bottom:18px}
+.row{padding:14px 0;border-top:1px solid var(--line)}
+.row>b{display:block;margin-bottom:10px}
+.btns{display:flex;gap:10px}
+.btn{flex:1;text-align:center;text-decoration:none;padding:12px;border-radius:14px;font-weight:600;font-size:15px;background:var(--brown);color:#fff}
+.btn.alt{background:var(--soft);color:var(--ink)}
+.btn.off{background:var(--soft);color:#a99a85;pointer-events:none}
+.miss{font-size:13px;color:var(--mute);margin-top:10px}
+.link{color:var(--amber);font-weight:600;text-decoration:underline;text-underline-offset:3px;padding:4px 0}
+.empty{background:var(--card);border:1px dashed #cdbd9f;border-radius:20px;padding:26px 20px;text-align:center}
+.empty p{color:var(--mute);margin-bottom:14px}
+.empty .btn{display:inline-block;padding:12px 22px}
+.fav{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:16px}
+.fav b{display:block;margin:2px 0 2px}
+.fav .meta{margin-bottom:12px}
+.pill{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(16px + env(safe-area-inset-bottom));z-index:20;display:flex;gap:4px;padding:6px;border-radius:999px;background:var(--card);border:1px solid var(--line);box-shadow:0 8px 24px rgba(58,31,10,.16)}
+.pill button{padding:10px 16px;border-radius:999px;font-size:14px;font-weight:600;white-space:nowrap}
+.pill button.main{background:var(--brown);color:#fff}
+#modal{position:fixed;inset:0;z-index:40;background:rgba(43,27,14,.5);display:none;align-items:flex-end}
+#modal.on{display:flex}
+#modal .box{width:100%;max-width:640px;margin:0 auto;background:var(--bg);border-radius:24px 24px 0 0;padding:22px 20px calc(22px + env(safe-area-inset-bottom))}
+#modal h3{font:700 22px var(--serif);margin-bottom:6px}
+#modal p{color:var(--mute);font-size:14px;margin-bottom:14px}
+#modal textarea{width:100%;min-height:92px;padding:12px;border-radius:14px;border:1px solid var(--line);font:inherit;font-size:14px;background:#fff;color:var(--ink);margin-bottom:12px;resize:vertical}
+#toast{position:fixed;left:50%;bottom:90px;transform:translateX(-50%);z-index:60;background:var(--brown);color:#fff;padding:10px 16px;border-radius:12px;font-size:14px;max-width:88%;text-align:center;opacity:0;pointer-events:none;transition:opacity .25s}
+#toast.on{opacity:1}
+</style>
+</head>
+<body>
+<div id="splash">
+  <div class="ring"><div class="logo" id="splashLogo"></div></div>
+  <h1 id="splashName"></h1><p id="splashTag"></p>
+  <div class="bar"><i></i></div>
+</div>
+<header>
+  <button class="ib" id="back" aria-label="Back" hidden>←</button>
+  <div class="brand"><div class="logo" id="hdrLogo"></div><span id="hdrName"></span></div>
+</header>
+<main><nav class="crumbs" id="crumbs" aria-label="Path"></nav><div id="view"></div></main>
+<div class="pill">
+  <button id="home">Home</button>
+  <button id="favBtn">★ Saved</button>
+  <button class="main" id="reqBtn">Request</button>
+</div>
+<div id="modal" role="dialog" aria-modal="true"><div class="box">
+  <h3>Notes ki request karo</h3>
+  <p>Message ready hai. Chaaho to badal lo, phir Telegram ya Email chuno.</p>
+  <textarea id="reqText"></textarea>
+  <div class="btns"><button class="btn" id="sendTg">Telegram</button><button class="btn alt" id="sendMail">Email</button></div>
+  <p style="margin:12px 0 0;text-align:center"><button class="link" id="closeModal">Band karo</button></p>
+</div></div>
+<div id="toast"></div>
+
+<script>
+/* ====== APNI DETAILS YAHAN BADLO ====== */
+const CFG = {
+  brand: "Aavid Notes",
+  tagline: "Notes & Syllabus",
+  logo: "logo.jpg",                     // apni photo isi naam se repo me daalo; na ho to naam ka pehla akshar dikhega
+  telegram: "YOUR_TELEGRAM_USERNAME",   // bina @ ke
+  email: "your@email.com"
+};
+/* ====================================== */
+const STREAMS = { ba: "B.A.", bsc: "B.Sc.", bcom: "B.Com." };
+const GROUPS = {
+  MAJOR: { label: "Major (MJC)", note: "Tumhara main subject", types: ["MJC"] },
+  MINOR: { label: "Minor (MIC)", note: "Doosra subject", types: ["MIC"] },
+  MDC:   { label: "MDC", note: "Multidisciplinary course", types: ["MDC"] },
+  OTHER: { label: "Other subjects", note: "AEC, SEC, VAC, Internship, Project", types: ["AEC","SEC","VAC","INT","RP"] }
+};
+const KEYS = ["ba","bsc","bcom","common"];
+const $ = id => document.getElementById(id);
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const DATA = {}, BYID = {}, loading = {};
+let path = [], lastStream = "ba", rid = 0;
+
+/* brand */
+const logoHTML = `<img src="${esc(CFG.logo)}" alt="" onerror="this.replaceWith(document.createTextNode('${esc(CFG.brand[0])}'))">`;
+["splashLogo","hdrLogo"].forEach(i => $(i).innerHTML = logoHTML);
+$("splashName").textContent = $("hdrName").textContent = document.title = CFG.brand;
+$("splashTag").textContent = CFG.tagline;
+setTimeout(() => $("splash").classList.add("out"), 1600);
+
+/* favourites (phone ke browser me save hota hai) */
+const favs = { get() { try { return JSON.parse(localStorage.getItem("favs") || "[]"); } catch (e) { return []; } },
+               set(a) { try { localStorage.setItem("favs", JSON.stringify(a)); } catch (e) {} } };
+function toggleFav(id) { let a = favs.get(); const on = !a.includes(id); a = on ? [...a, id] : a.filter(x => x !== id); favs.set(a); return on; }
+
+/* data: sirf jo stream chuni wahi file load hoti hai */
+function ensure(k) {
+  if (DATA[k]) return Promise.resolve();
+  return loading[k] || (loading[k] = fetch(`data/${k}.json`).then(r => { if (!r.ok) throw 0; return r.json(); })
+    .then(d => { DATA[k] = d.papers.map(p => ({ ...p, st: k })); DATA[k].forEach(p => BYID[p.id] = p); })
+    .catch(e => { delete loading[k]; throw e; }));
+}
+/* PDF ka path khud banta hai. syl/notes me 1 = hai, 0 = nahi, ya poora link likh sakte ho */
+function fileUrl(p, kind) {
+  const f = p[kind === "notes" ? "notes" : "syl"];
+  if (!f) return "";
+  if (typeof f === "string") return f;
+  const c = p.code.toLowerCase().replace("-", "");
+  return p.st === "common" ? `pdfs/common/${c}-${kind}.pdf` : `pdfs/${p.st}/s${p.sem}/${p.ab}-${c}-${kind}.pdf`;
+}
+
+/* navigation (phone ka back button bhi chalta hai) */
+history.replaceState({ path: [] }, "");
+function go(p) { path = p; if (STREAMS[p[1]]) lastStream = p[1]; history.pushState({ path }, ""); render(); scrollTo(0, 0); }
+addEventListener("popstate", e => { path = (e.state && e.state.path) || []; render(); });
+$("back").onclick = () => history.back();
+$("home").onclick = () => go([]);
+$("favBtn").onclick = () => go(["fav"]);
+
+const groupOf = t => Object.keys(GROUPS).find(k => GROUPS[k].types.includes(t));
+const pool = () => path[2] === "OTHER" ? DATA.common : DATA[path[1]];
+const sel = () => pool().filter(p => p.sem === path[0] && GROUPS[path[2]].types.includes(p.type));
+function labels() {
+  if (path[0] === "fav") return ["Favourites"];
+  const n = path.length, L = [];
+  if (n > 0) L.push("Semester " + path[0]);
+  if (n > 1) L.push(STREAMS[path[1]]);
+  if (n > 2) L.push(GROUPS[path[2]].label);
+  if (n > 3 && path[2] !== "OTHER") L.push(path[3]);
+  if (n > 4) L.push(BYID[path[4]] ? BYID[path[4]].code : "");
+  return L;
+}
+function reqText(p, what) {
+  if (p) return `Hi! Mujhe ${p.st !== "common" ? STREAMS[p.st] + " " : ""}Semester ${p.sem} ke ${p.dept !== "Common" ? p.dept + " " : ""}${p.code} (${p.name}) ka ${what} chahiye. Kya aap upload kar sakte hain?`;
+  const L = path[0] === "fav" ? [] : labels();
+  return `Hi! Mujhe ${L.length ? L.join(" > ") + " ke" : "college ke"} notes chahiye. Subject/paper: `;
+}
+
+/* views */
+const empty = (msg, id, what) => `<div class="empty"><p>${msg}</p><button class="btn" data-req="${esc(id || "")}" data-what="${what || "notes"}">Request notes</button></div>`;
+const item = (label, note, attr, cls = "") => `<button class="item ${cls}" ${attr}><span><b>${esc(label)}</b>${note ? `<small>${esc(note)}</small>` : ""}</span><span class="go">›</span></button>`;
+function fileRow(title, p, kind) {
+  const u = fileUrl(p, kind);
+  if (u) return `<div class="row"><b>${title}</b><div class="btns"><a class="btn" href="${esc(u)}" target="_blank" rel="noopener">View</a><a class="btn alt" href="${esc(u)}" download>Download</a></div></div>`;
+  return `<div class="row"><b>${title}</b><div class="btns"><span class="btn off">View</span><span class="btn off">Download</span></div>
+  <p class="miss">Ye abhi upload nahi hua. <button class="link" data-req="${esc(p.id)}" data-what="${kind}">Request karo</button></p></div>`;
+}
+async function render() {
+  const my = ++rid, v = $("view"), n = path.length, isFav = path[0] === "fav";
+  $("back").hidden = n === 0;
+  try {
+    if (isFav) await Promise.all([...new Set(favs.get().map(i => i.split("-")[0]))].filter(k => KEYS.includes(k)).map(ensure));
+    else if (n > 1) { await ensure(path[1]); if (path[2] === "OTHER") await ensure("common"); }
+  } catch (e) { if (my === rid) v.innerHTML = empty("Data load nahi hua. Internet check karke page reload karo."); return; }
+  if (my !== rid) return;
+
+  const L = labels();
+  $("crumbs").innerHTML = L.map((l, i) => `<button data-crumb="${path[2] === "OTHER" && i >= 3 ? i + 1 : i}">${esc(l)}</button>`).join("");
+  $("crumbs").style.display = n ? "flex" : "none";
+
+  if (isFav) {
+    const ps = favs.get().map(i => BYID[i]).filter(Boolean);
+    v.innerHTML = `<h2>Favourites</h2><p class="sub">Tumhare save kiye hue papers</p>` + (ps.length ? `<div class="list">${ps.map(p => {
+      const u = fileUrl(p, "notes");
+      return `<div class="fav"><span class="code">${esc(p.code)}</span><b>${esc(p.name)}</b><div class="meta">${p.st !== "common" ? STREAMS[p.st] + " · " : ""}Semester ${p.sem}${p.dept !== "Common" ? " · " + esc(p.dept) : ""}</div>
+      <div class="btns"><button class="btn" data-open="${esc(p.id)}">Open</button>${u ? `<a class="btn alt" href="${esc(u)}" download>Download</a>` : ""}<button class="btn alt" data-fav="${esc(p.id)}" data-refresh="1">Remove</button></div></div>`; }).join("")}</div>`
+      : `<div class="empty"><p>Abhi koi favourite nahi hai. Kisi paper ke page par ☆ Save dabao.</p></div>`);
+  } else if (n === 0) {
+    v.innerHTML = `<h2>Semester chuno</h2><p class="sub">Apna semester khol ke notes aur syllabus dekho.</p><div class="grid">` +
+      [1,2,3,4,5,6,7,8].map(s => `<button class="item sem" data-push="${s}"><b>${s}</b><small>Semester</small></button>`).join("") + `</div>`;
+  } else if (n === 1) {
+    v.innerHTML = `<h2>Stream chuno</h2><p class="sub">Semester ${path[0]}</p><div class="list">` + Object.entries(STREAMS).map(([k, l]) => item(l, "", `data-push="${k}"`)).join("") + `</div>`;
+  } else if (n === 2) {
+    v.innerHTML = `<h2>Kaunsa course?</h2><p class="sub">${STREAMS[path[1]]} · Semester ${path[0]}</p><div class="list">` + Object.entries(GROUPS).map(([k, g]) => item(g.label, g.note, `data-group="${k}"`)).join("") + `</div>`;
+  } else if (n === 3) {
+    const cnt = {}; sel().forEach(p => cnt[p.dept] = (cnt[p.dept] || 0) + 1);
+    const ds = Object.keys(cnt).sort();
+    v.innerHTML = `<h2>Department chuno</h2><p class="sub">${GROUPS[path[2]].label}</p>` + (ds.length ? `<div class="list">${ds.map(d => item(d, cnt[d] + (cnt[d] > 1 ? " papers" : " paper"), `data-push="${esc(d)}"`)).join("")}</div>` : empty("Is semester ke liye abhi koi department nahi jura hai."));
+  } else if (n === 4) {
+    const ps = sel().filter(p => p.dept === path[3]);
+    v.innerHTML = `<h2>${path[2] === "OTHER" ? "Other subjects" : esc(path[3])}</h2><p class="sub">Paper chuno</p>` + (ps.length ? `<div class="list">${ps.map(p =>
+      `<button class="item" data-push="${esc(p.id)}"><span><span class="code">${esc(p.code)}</span><b>${esc(p.name)}</b><small>${p.cr ? p.cr + " credits · " : ""}${p.notes ? "Notes ready" : "Notes coming soon"}</small></span><span class="go">›</span></button>`).join("")}</div>` : empty("Is department ke papers abhi upload nahi hue."));
+  } else {
+    const p = BYID[path[4]];
+    if (!p) { v.innerHTML = empty("Ye paper nahi mila."); return; }
+    const on = favs.get().includes(p.id);
+    v.innerHTML = `<div class="sheet"><div class="top"><span class="code">${esc(p.code)}</span><button class="star ${on ? "on" : ""}" data-fav="${esc(p.id)}">${on ? "★ Saved" : "☆ Save"}</button></div>
+      <h3>${esc(p.name)}</h3><div class="meta">${p.dept !== "Common" ? esc(p.dept) + " · " : ""}Semester ${p.sem}${p.cr ? " · " + p.cr + " credits" : ""}</div>
+      ${fileRow("Syllabus", p, "syllabus")}${fileRow("Notes", p, "notes")}</div>`;
+  }
+  v.classList.remove("in"); void v.offsetWidth; v.classList.add("in");
+}
+render();
+
+/* clicks */
+document.addEventListener("click", e => {
+  const t = e.target.closest("button"); if (!t) return;
+  const d = t.dataset;
+  if (d.crumb !== undefined) { let np = path.slice(0, +d.crumb + 1); if (np[2] === "OTHER" && np.length === 3) np = np.slice(0, 2); return go(np); }
+  if (d.group) return go(d.group === "OTHER" ? [...path, d.group, "Common"] : [...path, d.group]);
+  if (d.push !== undefined) return go([...path, path.length === 0 ? +d.push : d.push]);
+  if (d.open) { const p = BYID[d.open]; return go([p.sem, p.st === "common" ? lastStream : p.st, groupOf(p.type), p.st === "common" ? "Common" : p.dept, p.id]); }
+  if (d.fav) {
+    const on = toggleFav(d.fav);
+    toast(on ? "Favourites me add ho gaya" : "Favourites se hata diya");
+    if (d.refresh) return render();
+    t.className = "star" + (on ? " on" : ""); t.textContent = on ? "★ Saved" : "☆ Save"; return;
+  }
+  if (d.req !== undefined) return openReq(reqText(BYID[d.req], d.what === "syllabus" ? "syllabus" : "notes"));
+});
+
+/* request notes */
+function openReq(text) { $("reqText").value = text; $("modal").classList.add("on"); }
+$("reqBtn").onclick = () => openReq(reqText(null));
+$("closeModal").onclick = () => $("modal").classList.remove("on");
+$("modal").onclick = e => { if (e.target.id === "modal") $("modal").classList.remove("on"); };
+let tt; function toast(m) { const t = $("toast"); t.textContent = m; t.classList.add("on"); clearTimeout(tt); tt = setTimeout(() => t.classList.remove("on"), 2600); }
+$("sendTg").onclick = () => {
+  (navigator.clipboard ? navigator.clipboard.writeText($("reqText").value) : Promise.reject()).then(
+    () => toast("Message copy ho gaya. Telegram me paste karke bhej do."), () => toast("Telegram khul raha hai. Apna message wahan likh do."));
+  setTimeout(() => window.open("https://t.me/" + CFG.telegram, "_blank"), 700);
+};
+$("sendMail").onclick = () => { location.href = `mailto:${CFG.email}?subject=${encodeURIComponent("Notes request - " + CFG.brand)}&body=${encodeURIComponent($("reqText").value)}`; };
+</script>
+</body>
+</html>
