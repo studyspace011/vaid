@@ -189,11 +189,22 @@ function reqText(p, what) {
 /* views */
 const empty = (msg, id, what) => `<div class="empty"><p>${msg}</p><button class="btn" data-req="${esc(id || "")}" data-what="${what || "notes"}">Request notes</button></div>`;
 const item = (label, note, attr, cls = "") => `<button class="item ${cls}" ${attr}><span><b>${esc(label)}</b>${note ? `<small>${esc(note)}</small>` : ""}</span><span class="go">›</span></button>`;
+const missHTML = (title, p, kind) => `<b>${title}</b><div class="btns"><span class="btn off">View</span><span class="btn off">Download</span></div>
+  <p class="miss">Ye abhi upload nahi hua. <button class="link" data-req="${esc(p.id)}" data-what="${kind}">Request karo</button></p>`;
 function fileRow(title, p, kind) {
   const u = fileUrl(p, kind);
-  if (u) return `<div class="row"><b>${title}</b><div class="btns"><a class="btn" href="${esc(u)}" target="_blank" rel="noopener">View</a><a class="btn alt" href="${esc(u)}" download>Download</a></div></div>`;
-  return `<div class="row"><b>${title}</b><div class="btns"><span class="btn off">View</span><span class="btn off">Download</span></div>
-  <p class="miss">Ye abhi upload nahi hua. <button class="link" data-req="${esc(p.id)}" data-what="${kind}">Request karo</button></p></div>`;
+  if (u) return `<div class="row" data-kind="${kind}" data-title="${title}"><b>${title}</b><div class="btns"><a class="btn" href="${esc(u)}" target="_blank" rel="noopener">View</a><a class="btn alt" href="${esc(u)}" download>Download</a></div></div>`;
+  return `<div class="row">${missHTML(title, p, kind)}</div>`;
+}
+/* data me 1 likha ho par file repo me na mile (404), to bhi "Request karo" dikhao */
+async function verify(p) {
+  for (const kind of ["syllabus", "notes"]) {
+    const u = fileUrl(p, kind); if (!u) continue;
+    let ok = true;
+    try { const r = await fetch(u, { method: "HEAD" }); ok = r.ok && !/text\/html/.test(r.headers.get("content-type") || ""); } catch (e) {}
+    const row = document.querySelector(`.row[data-kind="${kind}"]`);
+    if (!ok && row && path[4] === p.id) row.innerHTML = missHTML(row.dataset.title, p, kind);
+  }
 }
 async function render() {
   const my = ++rid, v = $("view"), n = path.length, isFav = path[0] === "fav";
@@ -237,6 +248,7 @@ async function render() {
     v.innerHTML = `<div class="sheet"><div class="top"><span class="code">${esc(p.code)}</span><button class="star ${on ? "on" : ""}" data-fav="${esc(p.id)}">${on ? "★ Saved" : "☆ Save"}</button></div>
       <h3>${esc(p.name)}</h3><div class="meta">${p.dept !== "Common" ? esc(p.dept) + " · " : ""}Semester ${p.sem}${p.cr ? " · " + p.cr + " credits" : ""}</div>
       ${fileRow("Syllabus", p, "syllabus")}${fileRow("Notes", p, "notes")}</div>`;
+    verify(p);
   }
   v.classList.remove("in"); void v.offsetWidth; v.classList.add("in");
 }
