@@ -182,6 +182,43 @@
 {"id": "ba-s7-phi-mjc15", "sem": 7, "dept": "Philosophy", "ab": "phi", "type": "MJC", "code": "MJC-15", "name": "Contemporary Western Philosophy", "cr": 6, "syl": "/syllabus/phi/mjc-15.pdf", "notes": "/notes/phi/mjc-15.pdf"},
 {"id": "ba-s8-phi-mjc16", "sem": 8, "dept": "Philosophy", "ab": "phi", "type": "MJC", "code": "MJC-16", "name": "Indian Logic and Indian Epistemology", "cr": 4, "syl": "/syllabus/phi/mjc-16.pdf", "notes": "/notes/phi/mjc-16.pdf"},
 
+{"id": "ba-s1-eng-mjc1", "sem": 1, "dept": "English", "ab": "eng", "type": "MJC", "code": "MJC-1", "name": "Indian Classical Literature", "cr": 6, "syl": "/syllabus/eng/mjc-1.pdf", "notes": "/notes/eng/mjc-1.pdf"},
+{"id": "ba-s1-eng-mic1", "sem": 1, "dept": "English", "ab": "eng", "type": "MIC", "code": "MIC-1", "name": "Indian Classical Literature", "cr": 3, "syl": "/syllabus/eng/mic-1.pdf", "notes": "/notes/eng/mic-1.pdf"},
+{"id": "ba-s1-eng-mdc1", "sem": 1, "dept": "English", "ab": "eng", "type": "MDC", "code": "MDC-1", "name": "To be selected from the basket", "cr": 3, "syl": "/syllabus/eng/mdc-1.pdf", "notes": "/notes/eng/mdc-1.pdf"},
+
+{"id": "ba-s2-eng-mjc2", "sem": 2, "dept": "English", "ab": "eng", "type": "MJC", "code": "MJC-2", "name": "European Classical Literature", "cr": 6, "syl": "/syllabus/eng/mjc-2.pdf", "notes": "/notes/eng/mjc-2.pdf"},
+{"id": "ba-s2-eng-mic2", "sem": 2, "dept": "English", "ab": "eng", "type": "MIC", "code": "MIC-2", "name": "European Classical Literature", "cr": 3, "syl": "/syllabus/eng/mic-2.pdf", "notes": "/notes/eng/mic-2.pdf"},
+{"id": "ba-s2-eng-mdc2", "sem": 2, "dept": "English", "ab": "eng", "type": "MDC", "code": "MDC-2", "name": "To be selected from the basket", "cr": 3, "syl": "/syllabus/eng/mdc-2.pdf", "notes": "/notes/eng/mdc-2.pdf"},
+
+{"id": "ba-s3-eng-mjc3", "sem": 3, "dept": "English", "ab": "eng", "type": "MJC", "code": "MJC-3", "name": "Indian Writing in English", "cr": 5, "syl": "/syllabus/eng/mjc-3.pdf", "notes": "/notes/eng/mjc-3.pdf"},
+{"id": "ba-s3-eng-mjc4", "sem": 3, "dept": "English", "ab": "eng", "type": "MJC", "code": "MJC-4", "name": "British Poetry and Drama: 14th to 17th Century", "cr": 4, "syl": "/syllabus/eng/mjc-4.pdf", "notes": "/notes/eng/mjc-4.pdf"},
+{"id": "ba-s3-eng-mic3", "sem": 3, "dept": "English", "ab": "eng", "type": "MIC", "code": "MIC-3", "name": "Indian Writing in English", "cr": 3, "syl": "/syllabus/eng/mic-3.pdf", "notes": "/notes/eng/mic-3.pdf"},
+    {"id": "ba-s3-eng-mdc3", "sem": 3, "dept": "English", "ab": "eng", "type": "MDC", "code": "MDC-3", "name": "To be selected from the basket", "cr": 3, "syl": "/syllabus/eng/mdc-3.pdf", "notes": "/notes/eng/mdc-3.pdf"},
+
+    {"id": "ba-s4-eng-mjc5", "sem": 4, "dept": "English", "ab": "eng", "type": "MJC", "code": "MJC-5", "name": "American Literature", "cr": 5, "syl": "/syllabus/eng/mjc-5.pdf", "notes": "/notes/eng/mjc-5.pdf"},
+    {"id": "ba-s4-eng-mjc6", "sem": 4, "dept": "English", "ab": "eng", "type": "MJC", "code": "MJC-6", "name": "Language and Linguistics", "cr": 5, "syl": "/syllabus/eng/mjc-6.pdf", "notes": "/notes/eng/mjc-6.pdf"},
+    {"id": "ba-s4-eng-mjc7", "sem": 4, "dept": "English", "ab": "eng", "type": "MJC", "code": "MJC-7", "name": "British Poetry and Drama: 17th Century", "cr": 5, "syl": "/syllabus/eng/mjc-7.pdf", "notes": "/notes/eng/mjc-7.pdf"},
+    {"id": "ba-s4-eng-mic4", "sem": 4, "dept": "English", "ab": "eng", "type": "MIC", "code": "MIC-4", "name": "British Poetry and Drama : 14th to 17th Century", "cr": 3, "syl": "/syllabus/eng/mic-4.pdf", "notes": "/notes/eng/mic-4.pdf"},
+
+    {"id": "ba-s5-eng-mjc8", "sem": 5, "dept": "English", "ab": "eng", "type": "MJC", "code": "MJC-8", "name": "British Literature : 18th Century", "cr": 5, "syl": "/syllabus/eng/mjc-8.pdf", "notes": "/notes/eng/mjc-8.pdf"},
+    {"id": "ba-s5-eng-mjc9", "sem": 5, "dept": "English", "ab": "eng", "type": "MJC", "code": "MJC-9", "name": "British Romantic Literature", "cr": 5, "syl": "/syllabus/eng/mjc-9.pdf", "notes": "/notes/eng/mjc-9.pdf"},
+    {"id": "ba-s5-eng-mic5", "sem": 5, "dept": "English", "ab": "eng", "type": "MIC", "code": "MIC-5", "name": "American Literature", "cr": 3, "syl": "/syllabus/eng/mic-5.pdf", "notes": "/notes/eng/mic-5.pdf"},
+    {"id": "ba-s5-eng-mic6", "sem": 5, "dept": "English", "ab": "eng", "type": "MIC", "code": "MIC-6", "name": "Language and Linguistics", "cr": 3, "syl": "/syllabus/eng/mic-6.pdf", "notes": "/notes/eng/mic-6.pdf"},
+
+    {"id": "ba-s6-eng-mjc10", "sem": 6, "dept": "English", "ab": "eng", "type": "MJC", "code": "MJC-10", "name": "British Literature: 19th Century", "cr": 4, "syl": "/syllabus/eng/mjc-10.pdf", "notes": "/notes/eng/mjc-10.pdf"},
+    {"id": "ba-s6-eng-mjc11", "sem": 6, "dept": "English", "ab": "eng", "type": "MJC", "code": "MJC-11", "name": "Women's Writings", "cr": 5, "syl": "/syllabus/eng/mjc-11.pdf", "notes": "/notes/eng/mjc-11.pdf"},
+    {"id": "ba-s6-eng-mjc12", "sem": 6, "dept": "English", "ab": "eng", "type": "MJC", "code": "MJC-12", "name": "British Literature: The Early 20th Century", "cr": 5, "syl": "/syllabus/eng/mjc-12.pdf", "notes": "/notes/eng/mjc-12.pdf"},
+    {"id": "ba-s6-eng-mic7", "sem": 6, "dept": "English", "ab": "eng", "type": "MIC", "code": "MIC-7", "name": "British Poetry and Drama: 17th Century", "cr": 3, "syl": "/syllabus/eng/mic-7.pdf", "notes": "/notes/eng/mic-7.pdf"},
+    {"id": "ba-s6-eng-mic8", "sem": 6, "dept": "English", "ab": "eng", "type": "MIC", "code": "MIC-8", "name": "British Literature : 18th Century", "cr": 3, "syl": "/syllabus/eng/mic-8.pdf", "notes": "/notes/eng/mic-8.pdf"},
+
+    {"id": "ba-s7-eng-mjc13", "sem": 7, "dept": "English", "ab": "eng", "type": "MJC", "code": "MJC-13", "name": "Modern European Drama", "cr": 5, "syl": "/syllabus/eng/mjc-13.pdf", "notes": "/notes/eng/mjc-13.pdf"},
+    {"id": "ba-s7-eng-mjc14", "sem": 7, "dept": "English", "ab": "eng", "type": "MJC", "code": "MJC-14", "name": "Research Methodology", "cr": 5, "syl": "/syllabus/eng/mjc-14.pdf", "notes": "/notes/eng/mjc-14.pdf"},
+    {"id": "ba-s7-eng-mjc15", "sem": 7, "dept": "English", "ab": "eng", "type": "MJC", "code": "MJC-15", "name": "Postcolonial Literature", "cr": 6, "syl": "/syllabus/eng/mjc-15.pdf", "notes": "/notes/eng/mjc-15.pdf"},
+    {"id": "ba-s7-eng-mic9", "sem": 7, "dept": "English", "ab": "eng", "type": "MIC", "code": "MIC-9", "name": "British Romantic Literature", "cr": 4, "syl": "/syllabus/eng/mic-9.pdf", "notes": "/notes/eng/mic-9.pdf"},
+
+    {"id": "ba-s8-eng-mjc16", "sem": 8, "dept": "English", "ab": "eng", "type": "MJC", "code": "MJC-16", "name": "Modern Indian Writing in English Translation", "cr": 4, "syl": "/syllabus/eng/mjc-16.pdf", "notes": "/notes/eng/mjc-16.pdf"},
+    {"id": "ba-s8-eng-mic10", "sem": 8, "dept": "English", "ab": "eng", "type": "MIC", "code": "MIC-10", "name": "British Literature : 19th Century", "cr": 4, "syl": "/syllabus/eng/mic-10.pdf", "notes": "/notes/eng/mic-10.pdf"},
+    
 {"id": "ba-s1-hin-mjc1", "sem": 1, "dept": "Hindi", "ab": "hin", "type": "MJC", "code": "MJC-1", "name": "हिंदी साहित्य का इतिहास : आदिकाल से रीतिकाल तक", "cr": 6, "syl": "/syllabus/hin/mjc-1.pdf", "notes": "/notes/hin/mjc-1.pdf"},
 {"id": "ba-s1-hin-mic1", "sem": 1, "dept": "Hindi", "ab": "hin", "type": "MIC", "code": "MIC-1", "name": "हिंदी साहित्य का इतिहास", "cr": 3, "syl": "/syllabus/hin/mic-1.pdf", "notes": "/notes/hin/mic-1.pdf"},
 {"id": "ba-s2-hin-mjc2", "sem": 2, "dept": "Hindi", "ab": "hin", "type": "MJC", "code": "MJC-2", "name": "आदिकालीन एवं मध्यकालीन हिंदी कविता", "cr": 6, "syl": "/syllabus/hin/mjc-2.pdf", "notes": "/notes/hin/mjc-2.pdf"},
