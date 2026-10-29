@@ -100,28 +100,28 @@ h2{font:700 28px/1.2 var(--serif);margin-bottom:4px}
   <button class="main" id="reqBtn">Request</button>
 </div>
 <div id="modal" role="dialog" aria-modal="true"><div class="box">
-  <h3>Notes ki request karo</h3>
-  <p>Message ready hai. Chaaho to badal lo, phir Telegram ya Email chuno.</p>
+  <h3>Request Notes</h3>
+  <p>Message is ready. Edit it if needed, then choose Telegram or Email.</p>
   <textarea id="reqText"></textarea>
   <div class="btns"><button class="btn" id="sendTg">Telegram</button><button class="btn alt" id="sendMail">Email</button></div>
-  <p style="margin:12px 0 0;text-align:center"><button class="link" id="closeModal">Band karo</button></p>
+  <p style="margin:12px 0 0;text-align:center"><button class="link" id="closeModal">Close</button></p>
 </div></div>
 <div id="toast"></div>
 
 <script>
 /* ====== APNI DETAILS YAHAN BADLO ====== */
 const CFG = {
-  brand: "Aavid Notes",
+  brand: "Notes by Vaid",
   tagline: "Notes & Syllabus",
   logo: "logo.jpg",                     // apni photo isi naam se repo me daalo; na ho to naam ka pehla akshar dikhega
-  telegram: "YOUR_TELEGRAM_USERNAME",   // bina @ ke
-  email: "your@email.com"
+  telegram: "silent_batchmate",   // bina @ ke
+  email: "studyspace.ba@email.com"
 };
 /* ====================================== */
 const STREAMS = { ba: "B.A.", bsc: "B.Sc.", bcom: "B.Com." };
 const GROUPS = {
-  MAJOR: { label: "Major (MJC)", note: "Tumhara main subject", types: ["MJC"] },
-  MINOR: { label: "Minor (MIC)", note: "Doosra subject", types: ["MIC"] },
+  MAJOR: { label: "Major (MJC)", note: "Your Main Subject", types: ["MJC"] },
+  MINOR: { label: "Minor (MIC)", note: "Secondary Subject", types: ["MIC"] },
   MDC:   { label: "MDC", note: "Multidisciplinary course", types: ["MDC"] },
   OTHER: { label: "Other subjects", note: "AEC, SEC, VAC, Internship, Project", types: ["AEC","SEC","VAC","INT","RP"] }
 };
@@ -190,7 +190,7 @@ function reqText(p, what) {
 const empty = (msg, id, what) => `<div class="empty"><p>${msg}</p><button class="btn" data-req="${esc(id || "")}" data-what="${what || "notes"}">Request notes</button></div>`;
 const item = (label, note, attr, cls = "") => `<button class="item ${cls}" ${attr}><span><b>${esc(label)}</b>${note ? `<small>${esc(note)}</small>` : ""}</span><span class="go">›</span></button>`;
 const missHTML = (title, p, kind) => `<b>${title}</b><div class="btns"><span class="btn off">View</span><span class="btn off">Download</span></div>
-  <p class="miss">Ye abhi upload nahi hua. <button class="link" data-req="${esc(p.id)}" data-what="${kind}">Request karo</button></p>`;
+  <p class="miss">Not uploaded yet. <button class="link" data-req="${esc(p.id)}" data-what="${kind}">Request it</button></p>`;
 function fileRow(title, p, kind) {
   const u = fileUrl(p, kind);
   if (u) return `<div class="row" data-kind="${kind}" data-title="${title}"><b>${title}</b><div class="btns"><a class="btn" href="${esc(u)}" target="_blank" rel="noopener">View</a><a class="btn alt" href="${esc(u)}" download>Download</a></div></div>`;
@@ -225,25 +225,25 @@ async function render() {
       const u = fileUrl(p, "notes");
       return `<div class="fav"><span class="code">${esc(p.code)}</span><b>${esc(p.name)}</b><div class="meta">${p.st !== "common" ? STREAMS[p.st] + " · " : ""}Semester ${p.sem}${p.dept !== "Common" ? " · " + esc(p.dept) : ""}</div>
       <div class="btns"><button class="btn" data-open="${esc(p.id)}">Open</button>${u ? `<a class="btn alt" href="${esc(u)}" download>Download</a>` : ""}<button class="btn alt" data-fav="${esc(p.id)}" data-refresh="1">Remove</button></div></div>`; }).join("")}</div>`
-      : `<div class="empty"><p>Abhi koi favourite nahi hai. Kisi paper ke page par ☆ Save dabao.</p></div>`);
+      : `<div class="empty"><p>No favorites yet. Tap ☆ Save on any paper page.</p></div>`);
   } else if (n === 0) {
-    v.innerHTML = `<h2>Semester chuno</h2><p class="sub">Apna semester khol ke notes aur syllabus dekho.</p><div class="grid">` +
+    v.innerHTML = `<h2>Choose Semester</h2><p class="sub">Open your semester to view notes nd syllabus.</p><div class="grid">` +
       [1,2,3,4,5,6,7,8].map(s => `<button class="item sem" data-push="${s}"><b>${s}</b><small>Semester</small></button>`).join("") + `</div>`;
   } else if (n === 1) {
-    v.innerHTML = `<h2>Stream chuno</h2><p class="sub">Semester ${path[0]}</p><div class="list">` + Object.entries(STREAMS).map(([k, l]) => item(l, "", `data-push="${k}"`)).join("") + `</div>`;
+    v.innerHTML = `<h2>Choose Stream</h2><p class="sub">Semester ${path[0]}</p><div class="list">` + Object.entries(STREAMS).map(([k, l]) => item(l, "", `data-push="${k}"`)).join("") + `</div>`;
   } else if (n === 2) {
-    v.innerHTML = `<h2>Kaunsa course?</h2><p class="sub">${STREAMS[path[1]]} · Semester ${path[0]}</p><div class="list">` + Object.entries(GROUPS).map(([k, g]) => item(g.label, g.note, `data-group="${k}"`)).join("") + `</div>`;
+    v.innerHTML = `<h2>Which course?</h2><p class="sub">${STREAMS[path[1]]} · Semester ${path[0]}</p><div class="list">` + Object.entries(GROUPS).map(([k, g]) => item(g.label, g.note, `data-group="${k}"`)).join("") + `</div>`;
   } else if (n === 3) {
     const cnt = {}; sel().forEach(p => cnt[p.dept] = (cnt[p.dept] || 0) + 1);
     const ds = Object.keys(cnt).sort();
-    v.innerHTML = `<h2>Department chuno</h2><p class="sub">${GROUPS[path[2]].label}</p>` + (ds.length ? `<div class="list">${ds.map(d => item(d, cnt[d] + (cnt[d] > 1 ? " papers" : " paper"), `data-push="${esc(d)}"`)).join("")}</div>` : empty("Is semester ke liye abhi koi department nahi jura hai."));
+    v.innerHTML = `<h2>Choose Department</h2><p class="sub">${GROUPS[path[2]].label}</p>` + (ds.length ? `<div class="list">${ds.map(d => item(d, cnt[d] + (cnt[d] > 1 ? " papers" : " paper"), `data-push="${esc(d)}"`)).join("")}</div>` : empty("Is semester ke liye abhi koi department nahi jura hai."));
   } else if (n === 4) {
     const ps = sel().filter(p => p.dept === path[3]);
-    v.innerHTML = `<h2>${path[2] === "OTHER" ? "Other subjects" : esc(path[3])}</h2><p class="sub">Paper chuno</p>` + (ps.length ? `<div class="list">${ps.map(p =>
+    v.innerHTML = `<h2>${path[2] === "OTHER" ? "Other subjects" : esc(path[3])}</h2><p class="sub">Choose Paper</p>` + (ps.length ? `<div class="list">${ps.map(p =>
       `<button class="item" data-push="${esc(p.id)}"><span><span class="code">${esc(p.code)}</span><b>${esc(p.name)}</b><small>${p.cr ? p.cr + " credits · " : ""}${p.notes ? "Notes ready" : "Notes coming soon"}</small></span><span class="go">›</span></button>`).join("")}</div>` : empty("Is department ke papers abhi upload nahi hue."));
   } else {
     const p = BYID[path[4]];
-    if (!p) { v.innerHTML = empty("Ye paper nahi mila."); return; }
+    if (!p) { v.innerHTML = empty("Paper not found."); return; }
     const on = favs.get().includes(p.id);
     v.innerHTML = `<div class="sheet"><div class="top"><span class="code">${esc(p.code)}</span><button class="star ${on ? "on" : ""}" data-fav="${esc(p.id)}">${on ? "★ Saved" : "☆ Save"}</button></div>
       <h3>${esc(p.name)}</h3><div class="meta">${p.dept !== "Common" ? esc(p.dept) + " · " : ""}Semester ${p.sem}${p.cr ? " · " + p.cr + " credits" : ""}</div>
@@ -279,7 +279,7 @@ $("modal").onclick = e => { if (e.target.id === "modal") $("modal").classList.re
 let tt; function toast(m) { const t = $("toast"); t.textContent = m; t.classList.add("on"); clearTimeout(tt); tt = setTimeout(() => t.classList.remove("on"), 2600); }
 $("sendTg").onclick = () => {
   (navigator.clipboard ? navigator.clipboard.writeText($("reqText").value) : Promise.reject()).then(
-    () => toast("Message copy ho gaya. Telegram me paste karke bhej do."), () => toast("Telegram khul raha hai. Apna message wahan likh do."));
+    () => toast("Message copied. Paste it into Telegram and send it."), () => toast("Telegram is opening. Type your message there."));
   setTimeout(() => window.open("https://t.me/" + CFG.telegram, "_blank"), 700);
 };
 $("sendMail").onclick = () => { location.href = `mailto:${CFG.email}?subject=${encodeURIComponent("Notes request - " + CFG.brand)}&body=${encodeURIComponent($("reqText").value)}`; };
