@@ -115,7 +115,7 @@ const CFG = {
   tagline: "Notes & Syllabus",
   logo: "logo.jpg",                     // apni photo isi naam se repo me daalo; na ho to naam ka pehla akshar dikhega
   telegram: "silent_batchmate",   // bina @ ke
-  email: "studyspace.ba@email.com"
+  email: "studyspace.ba@gmail.com"
 };
 /* ====================================== */
 const STREAMS = { ba: "B.A.", bsc: "B.Sc.", bcom: "B.Com." };
@@ -236,7 +236,7 @@ async function render() {
   } else if (n === 3) {
     const cnt = {}; sel().forEach(p => cnt[p.dept] = (cnt[p.dept] || 0) + 1);
     const ds = Object.keys(cnt).sort();
-    v.innerHTML = `<h2>Choose Department</h2><p class="sub">${GROUPS[path[2]].label}</p>` + (ds.length ? `<div class="list">${ds.map(d => item(d, cnt[d] + (cnt[d] > 1 ? " papers" : " paper"), `data-push="${esc(d)}"`)).join("")}</div>` : empty("Is semester ke liye abhi koi department nahi jura hai."));
+    v.innerHTML = `<h2>Choose Department</h2><p class="sub">${GROUPS[path[2]].label}</p>` + (ds.length ? `<div class="list">${ds.map(d => item(d, cnt[d] + (cnt[d] > 1 ? " papers" : " paper"), `data-push="${esc(d)}"`)).join("")}</div>` : empty("😂 MDC? 3rd semester ke baad iska chapter hi khatam! 📚💀 Abhi tak ye baat kisi ne batayi nahi kya? 🤦‍♂️"));
   } else if (n === 4) {
     const ps = sel().filter(p => p.dept === path[3]);
     v.innerHTML = `<h2>${path[2] === "OTHER" ? "Other subjects" : esc(path[3])}</h2><p class="sub">Choose Paper</p>` + (ps.length ? `<div class="list">${ps.map(p =>
