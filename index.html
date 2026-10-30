@@ -121,7 +121,8 @@ h2{font:700 28px/1.2 var(--serif);margin-bottom:4px}
   <div class="btns"><button class="btn" id="sendWhatsApp">WhatsApp</button><button class="btn alt" id="sendMail">Email</button></div>
   <div class="contact">
     <b>About &amp; Contact</b>
-    <p>Vaid is a student resource portal for semester-wise notes and syllabi. For suggestions, corrections or study materials, contact us.</p>
+    <p>Vaid is a student resource portal for semester-wise Notes & Syllabus - bcz apparently surviving college without academic trauma wasn’t difficult enough 💀
+For suggestions, corrections, or Study Materials, feel free to contact me. I’ll try to help, assuming life allows me to 🌚</p>
     <div class="contact-links"><a href="https://wa.me/917979016680" target="_blank" rel="noopener">WhatsApp: +91 79 7901 6680</a><a href="mailto:studyspace.ba@gmail.com">studyspace.ba@gmail.com</a></div>
   </div>
   <p style="margin:12px 0 0;text-align:center"><button class="link" id="closeModal">Close</button></p>
@@ -288,10 +289,10 @@ function requestText(paper, kind = "notes") {
   if (paper) {
     const stream = paper.st !== "common" ? `${STREAMS[paper.st] || paper.st} ` : "";
     const department = paper.dept && paper.dept !== "Common" ? `${paper.dept} ` : "";
-    return `Hello! Please share the ${kind} for ${stream}Semester ${paper.sem}, ${department}${paper.code} (${paper.name}). Thank you.`;
+    return `Hlw! Please share the ${kind} for ${stream}Semester ${paper.sem}, ${department}${paper.code} (${paper.name}). Thank you.`;
   }
   const current = labels();
-  return `Hello! I need study material for ${current.length ? current.join(" > ") : "the college courses"}.\nPaper/Subject: `;
+  return `Hlw! I need study material for ${current.length ? current.join(" > ") : "the college courses"}.\nPaper/Subject: `;
 }
 
 /* Small reusable UI pieces */
@@ -392,7 +393,7 @@ async function render() {
     view.innerHTML = paperCollectionView("Recently Viewed", "Your last 5 opened papers", papers);
     refreshPaperStatuses(papers, renderId);
   } else if (depth === 0) {
-    view.innerHTML = `<h2>Choose Semester</h2><p class="sub">Select a semester to explore subjects, notes and syllabi.</p><div class="grid">` +
+    view.innerHTML = `<h2>Choose Semester</h2><p class="sub">Select a semester to explore subjects, notes and syllabus.</p><div class="grid">` +
       [1, 2, 3, 4, 5, 6, 7, 8].map(semester => `<button class="item sem" data-push="${semester}"><b>${semester}</b><small>Semester</small></button>`).join("") + `</div>`;
   } else if (depth === 1) {
     view.innerHTML = `<h2>Choose Stream</h2><p class="sub">Semester ${path[0]}</p><div class="list">` +
