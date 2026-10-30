@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="hi">
+<html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
@@ -81,6 +81,20 @@ h2{font:700 28px/1.2 var(--serif);margin-bottom:4px}
 #modal textarea{width:100%;min-height:92px;padding:12px;border-radius:14px;border:1px solid var(--line);font:inherit;font-size:14px;background:#fff;color:var(--ink);margin-bottom:12px;resize:vertical}
 #toast{position:fixed;left:50%;bottom:90px;transform:translateX(-50%);z-index:60;background:var(--brown);color:#fff;padding:10px 16px;border-radius:12px;font-size:14px;max-width:88%;text-align:center;opacity:0;pointer-events:none;transition:opacity .25s}
 #toast.on{opacity:1}
+
+/* Minimal additions */
+.pill{max-width:calc(100% - 20px);width:max-content}
+.pill button{padding:10px 12px;font-size:13px}
+.pill button.active{background:var(--brown);color:#fff}
+.item .item-right{display:flex;align-items:center;gap:8px;flex-shrink:0}
+.status-line{display:block;color:var(--mute);font-size:12px;margin-top:3px}
+.new-tag{display:inline-block;margin-left:7px;padding:2px 7px;border-radius:999px;background:#fff0c8;color:#895400;font:600 10px var(--sans);letter-spacing:.05em;vertical-align:middle}
+.dept-count{display:block;color:var(--mute);font-size:12px;margin-top:2px}
+.contact{border-top:1px solid var(--line);margin-top:18px;padding-top:16px}
+.contact>p{margin:5px 0 10px!important}
+.contact-links{display:flex;flex-direction:column;gap:7px}
+.contact-links a{color:var(--amber);font-size:13px;font-weight:600;text-decoration:none}
+@media(max-width:360px){.pill{gap:2px;padding:5px}.pill button{padding:9px 9px;font-size:12px}}
 </style>
 </head>
 <body>
@@ -95,194 +109,380 @@ h2{font:700 28px/1.2 var(--serif);margin-bottom:4px}
 </header>
 <main><nav class="crumbs" id="crumbs" aria-label="Path"></nav><div id="view"></div></main>
 <div class="pill">
-  <button id="home">Home</button>
+  <button id="home" class="main">Home</button>
   <button id="favBtn">★ Saved</button>
-  <button class="main" id="reqBtn">Request</button>
+  <button id="recentBtn">Recent</button>
+  <button id="reqBtn">Request</button>
 </div>
 <div id="modal" role="dialog" aria-modal="true"><div class="box">
   <h3>Request Notes</h3>
-  <p>Message is ready. Edit it if needed, then choose Telegram or Email.</p>
+  <p>Your message is ready. Edit it if needed, then choose how to contact us.</p>
   <textarea id="reqText"></textarea>
-  <div class="btns"><button class="btn" id="sendTg">Telegram</button><button class="btn alt" id="sendMail">Email</button></div>
+  <div class="btns"><button class="btn" id="sendWhatsApp">WhatsApp</button><button class="btn alt" id="sendMail">Email</button></div>
+  <div class="contact">
+    <b>About &amp; Contact</b>
+    <p>Vaid is a student resource portal for semester-wise notes and syllabi. For suggestions, corrections or study materials, contact us.</p>
+    <div class="contact-links"><a href="https://wa.me/917979016680" target="_blank" rel="noopener">WhatsApp: +91 79 7901 6680</a><a href="mailto:studyspace.ba@gmail.com">studyspace.ba@gmail.com</a></div>
+  </div>
   <p style="margin:12px 0 0;text-align:center"><button class="link" id="closeModal">Close</button></p>
 </div></div>
 <div id="toast"></div>
 
 <script>
-/* ====== APNI DETAILS YAHAN BADLO ====== */
+/* ===================== SITE SETTINGS ===================== */
 const CFG = {
   brand: "Vaid",
   tagline: "Notes & Syllabus",
-  logo: "logo.jpg",                     // apni photo isi naam se repo me daalo; na ho to naam ka pehla akshar dikhega
-  telegram: "silent_batchmate",   // bina @ ke
-  email: "studyspace.ba@gmail.com"
+  logo: "logo.jpg",
+  email: "studyspace.ba@gmail.com",
+  whatsapp: "917979016680"
 };
-/* ====================================== */
+
 const STREAMS = { ba: "B.A.", bsc: "B.Sc.", bcom: "B.Com." };
 const GROUPS = {
-  MAJOR: { label: "Major (MJC)", note: "Your Main Subject", types: ["MJC"] },
-  MINOR: { label: "Minor (MIC)", note: "Secondary Subject", types: ["MIC"] },
+  MAJOR: { label: "Major (MJC)", note: "Your main subject", types: ["MJC"] },
+  MINOR: { label: "Minor (MIC)", note: "Your secondary subject", types: ["MIC"] },
   MDC:   { label: "MDC", note: "Multidisciplinary course", types: ["MDC"] },
-  OTHER: { label: "Other subjects", note: "AEC, SEC, VAC, Internship, Project", types: ["AEC","SEC","VAC","INT","RP"] }
+  OTHER: { label: "Other subjects", note: "AEC, SEC, VAC, Internship and Project", types: ["AEC", "SEC", "VAC", "INT", "RP"] }
 };
-const KEYS = ["ba","bsc","bcom","common"];
+const KEYS = ["ba", "bsc", "bcom", "common"];
 const $ = id => document.getElementById(id);
-const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const esc = value => String(value ?? "").replace(/[&<>"']/g, ch => ({
+  "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"
+}[ch]));
+
 const DATA = {}, BYID = {}, loading = {};
+const fileChecks = new Map();
 let path = [], lastStream = "ba", rid = 0;
 
-/* brand */
+/* Brand */
 const logoHTML = `<img src="${esc(CFG.logo)}" alt="" onerror="this.replaceWith(document.createTextNode('${esc(CFG.brand[0])}'))">`;
-["splashLogo","hdrLogo"].forEach(i => $(i).innerHTML = logoHTML);
+["splashLogo", "hdrLogo"].forEach(id => $(id).innerHTML = logoHTML);
 $("splashName").textContent = $("hdrName").textContent = document.title = CFG.brand;
 $("splashTag").textContent = CFG.tagline;
-setTimeout(() => $("splash").classList.add("out"), 1600);
+setTimeout(() => $("splash").classList.add("out"), 1200);
 
-/* favourites (phone ke browser me save hota hai) */
-const favs = { get() { try { return JSON.parse(localStorage.getItem("favs") || "[]"); } catch (e) { return []; } },
-               set(a) { try { localStorage.setItem("favs", JSON.stringify(a)); } catch (e) {} } };
-function toggleFav(id) { let a = favs.get(); const on = !a.includes(id); a = on ? [...a, id] : a.filter(x => x !== id); favs.set(a); return on; }
-
-/* data: sirf jo stream chuni wahi file load hoti hai */
-function ensure(k) {
-  if (DATA[k]) return Promise.resolve();
-  return loading[k] || (loading[k] = fetch(`data/${k}.json`).then(r => { if (!r.ok) throw 0; return r.json(); })
-    .then(d => { DATA[k] = d.papers.map(p => ({ ...p, st: k })); DATA[k].forEach(p => BYID[p.id] = p); })
-    .catch(e => { delete loading[k]; throw e; }));
+/* Local storage */
+function readStore(key, fallback = []) {
+  try {
+    const value = JSON.parse(localStorage.getItem(key) || "null");
+    return Array.isArray(value) ? value : fallback;
+  } catch (error) { return fallback; }
 }
-/* PDF ka path khud banta hai. syl/notes me 1 = hai, 0 = nahi, ya poora link likh sakte ho */
-function fileUrl(p, kind) {
-  const f = p[kind === "notes" ? "notes" : "syl"];
-  if (!f) return "";
-  if (typeof f === "string") return f;
-  const c = p.code.toLowerCase().replace("-", "");
-  return p.st === "common" ? `pdfs/common/${c}-${kind}.pdf` : `pdfs/${p.st}/s${p.sem}/${p.ab}-${c}-${kind}.pdf`;
+function writeStore(key, value) {
+  try { localStorage.setItem(key, JSON.stringify(value)); } catch (error) {}
+}
+const favs = { get: () => readStore("favs"), set: value => writeStore("favs", value) };
+const recents = { get: () => readStore("vaid_recent"), set: value => writeStore("vaid_recent", value) };
+function toggleFav(id) {
+  const list = favs.get();
+  const on = !list.includes(id);
+  favs.set(on ? [...list, id] : list.filter(item => item !== id));
+  return on;
+}
+function markViewed(id) {
+  recents.set([id, ...recents.get().filter(item => item !== id)].slice(0, 5));
 }
 
-/* navigation (phone ka back button bhi chalta hai) */
+/* Load one stream file only when it is needed. */
+function ensure(key) {
+  if (DATA[key]) return Promise.resolve();
+  if (loading[key]) return loading[key];
+  const url = new URL(`data/${key}.json`, document.baseURI).href;
+  loading[key] = fetch(url)
+    .then(response => {
+      if (!response.ok) throw new Error(`Could not load data/${key}.json`);
+      return response.json();
+    })
+    .then(data => {
+      if (!data || !Array.isArray(data.papers)) throw new Error(`Invalid data/${key}.json`);
+      DATA[key] = data.papers.map(paper => ({ ...paper, st: key }));
+      DATA[key].forEach(paper => { BYID[paper.id] = paper; });
+    })
+    .catch(error => { delete loading[key]; throw error; });
+  return loading[key];
+}
+
+/* The JSON now stores the complete PDF path in syl and notes. */
+function fileUrl(paper, kind) {
+  const raw = paper?.[kind === "notes" ? "notes" : "syl"];
+  if (raw === 0 || raw === false || raw == null || raw === "") return "";
+  if (raw === 1 || raw === true) {
+    const code = String(paper.code || "").toLowerCase().replace("-", "");
+    return new URL(paper.st === "common"
+      ? `pdfs/common/${code}-${kind}.pdf`
+      : `pdfs/${paper.st}/s${paper.sem}/${paper.ab}-${code}-${kind}.pdf`, document.baseURI).href;
+  }
+  if (typeof raw !== "string" || !raw.trim()) return "";
+  const value = raw.trim();
+  if (/^(https?:|blob:|data:)/i.test(value)) return value;
+  // Treat /notes/... and notes/... alike, relative to the site folder.
+  return new URL(value.replace(/^\/+/, ""), document.baseURI).href;
+}
+
+/* Verify the actual PDF instead of trusting a path written in JSON. */
+function checkFile(paper, kind) {
+  const key = `${paper.id}:${kind}`;
+  if (fileChecks.has(key)) return fileChecks.get(key);
+  const url = fileUrl(paper, kind);
+  if (!url) { fileChecks.set(key, false); return Promise.resolve(false); }
+  const pending = fetch(url, { method: "HEAD", cache: "no-store" })
+    .then(response => {
+      const type = response.headers.get("content-type") || "";
+      return response.ok && !/text\/html/i.test(type);
+    })
+    .catch(() => false)
+    .then(available => { fileChecks.set(key, available); return available; });
+  fileChecks.set(key, pending);
+  return pending;
+}
+function fileState(paper, kind) {
+  const state = fileChecks.get(`${paper.id}:${kind}`);
+  if (state === true) return kind === "notes" ? "Notes available" : "Syllabus available";
+  if (state === false) return kind === "notes" ? "Notes not uploaded yet" : "Syllabus not uploaded yet";
+  return kind === "notes" ? "Checking notes…" : "Checking syllabus…";
+}
+function isNew(paper) {
+  if (!paper.added) return false;
+  const date = new Date(`${paper.added}T00:00:00`);
+  if (Number.isNaN(date.getTime())) return false;
+  const age = (Date.now() - date.getTime()) / 86400000;
+  return age >= 0 && age <= 14;
+}
+function newTag(paper) { return isNew(paper) ? '<span class="new-tag">NEW</span>' : ""; }
+
+/* Navigation */
 history.replaceState({ path: [] }, "");
-function go(p) { path = p; if (STREAMS[p[1]]) lastStream = p[1]; history.pushState({ path }, ""); render(); scrollTo(0, 0); }
-addEventListener("popstate", e => { path = (e.state && e.state.path) || []; render(); });
+function go(nextPath) {
+  path = nextPath;
+  if (STREAMS[nextPath[1]]) lastStream = nextPath[1];
+  if (nextPath.length === 5 && BYID[nextPath[4]]) markViewed(nextPath[4]);
+  history.pushState({ path }, "");
+  render();
+  window.scrollTo(0, 0);
+}
+addEventListener("popstate", event => {
+  path = (event.state && event.state.path) || [];
+  render();
+});
 $("back").onclick = () => history.back();
 $("home").onclick = () => go([]);
 $("favBtn").onclick = () => go(["fav"]);
+$("recentBtn").onclick = () => go(["recent"]);
 
-const groupOf = t => Object.keys(GROUPS).find(k => GROUPS[k].types.includes(t));
+const groupOf = type => Object.keys(GROUPS).find(key => GROUPS[key].types.includes(type));
 const pool = () => path[2] === "OTHER" ? DATA.common : DATA[path[1]];
-const sel = () => pool().filter(p => p.sem === path[0] && GROUPS[path[2]].types.includes(p.type));
+const sel = () => (pool() || []).filter(paper => paper.sem === path[0] && GROUPS[path[2]]?.types.includes(paper.type));
 function labels() {
-  if (path[0] === "fav") return ["Favourites"];
-  const n = path.length, L = [];
-  if (n > 0) L.push("Semester " + path[0]);
-  if (n > 1) L.push(STREAMS[path[1]]);
-  if (n > 2) L.push(GROUPS[path[2]].label);
-  if (n > 3 && path[2] !== "OTHER") L.push(path[3]);
-  if (n > 4) L.push(BYID[path[4]] ? BYID[path[4]].code : "");
-  return L;
+  if (path[0] === "fav") return ["Saved Papers"];
+  if (path[0] === "recent") return ["Recently Viewed"];
+  const result = [];
+  if (path.length > 0) result.push(`Semester ${path[0]}`);
+  if (path.length > 1) result.push(STREAMS[path[1]] || path[1]);
+  if (path.length > 2) result.push(GROUPS[path[2]]?.label || path[2]);
+  if (path.length > 3 && path[2] !== "OTHER") result.push(path[3]);
+  if (path.length > 4) result.push(BYID[path[4]]?.code || "");
+  return result;
 }
-function reqText(p, what) {
-  if (p) return `Hi! Mujhe ${p.st !== "common" ? STREAMS[p.st] + " " : ""}Semester ${p.sem} ke ${p.dept !== "Common" ? p.dept + " " : ""}${p.code} (${p.name}) ka ${what} chahiye. Kya aap upload kar sakte hain?`;
-  const L = path[0] === "fav" ? [] : labels();
-  return `Hi! Mujhe ${L.length ? L.join(" > ") + " ke" : "college ke"} notes chahiye. Subject/paper: `;
+function requestText(paper, kind = "notes") {
+  if (paper) {
+    const stream = paper.st !== "common" ? `${STREAMS[paper.st] || paper.st} ` : "";
+    const department = paper.dept && paper.dept !== "Common" ? `${paper.dept} ` : "";
+    return `Hello! Please share the ${kind} for ${stream}Semester ${paper.sem}, ${department}${paper.code} (${paper.name}). Thank you.`;
+  }
+  const current = labels();
+  return `Hello! I need study material for ${current.length ? current.join(" > ") : "the college courses"}.\nPaper/Subject: `;
 }
 
-/* views */
-const empty = (msg, id, what) => `<div class="empty"><p>${msg}</p><button class="btn" data-req="${esc(id || "")}" data-what="${what || "notes"}">Request notes</button></div>`;
+/* Small reusable UI pieces */
+const empty = (message, id = "", kind = "notes") => `<div class="empty"><p>${esc(message)}</p><button class="btn" data-req="${esc(id)}" data-what="${esc(kind)}">Request notes</button></div>`;
 const item = (label, note, attr, cls = "") => `<button class="item ${cls}" ${attr}><span><b>${esc(label)}</b>${note ? `<small>${esc(note)}</small>` : ""}</span><span class="go">›</span></button>`;
-const missHTML = (title, p, kind) => `<b>${title}</b><div class="btns"><span class="btn off">View</span><span class="btn off">Download</span></div>
-  <p class="miss">Not uploaded yet. <button class="link" data-req="${esc(p.id)}" data-what="${kind}">Request it</button></p>`;
-function fileRow(title, p, kind) {
-  const u = fileUrl(p, kind);
-  if (u) return `<div class="row" data-kind="${kind}" data-title="${title}"><b>${title}</b><div class="btns"><a class="btn" href="${esc(u)}" target="_blank" rel="noopener">View</a><a class="btn alt" href="${esc(u)}" download>Download</a></div></div>`;
-  return `<div class="row">${missHTML(title, p, kind)}</div>`;
+function missHTML(title, paper, kind) {
+  return `<b>${esc(title)}</b><div class="btns"><span class="btn off">View</span><span class="btn off">Download</span></div>
+    <p class="miss">Not uploaded yet. <button class="link" data-req="${esc(paper.id)}" data-what="${kind}">Request it</button></p>`;
 }
-/* data me 1 likha ho par file repo me na mile (404), to bhi "Request karo" dikhao */
-async function verify(p) {
-  for (const kind of ["syllabus", "notes"]) {
-    const u = fileUrl(p, kind); if (!u) continue;
-    let ok = true;
-    try { const r = await fetch(u, { method: "HEAD" }); ok = r.ok && !/text\/html/.test(r.headers.get("content-type") || ""); } catch (e) {}
-    const row = document.querySelector(`.row[data-kind="${kind}"]`);
-    if (!ok && row && path[4] === p.id) row.innerHTML = missHTML(row.dataset.title, p, kind);
+function fileRow(title, paper, kind) {
+  return `<div class="row" data-kind="${kind}" data-title="${esc(title)}"><b>${esc(title)}</b><p class="miss">Checking availability…</p></div>`;
+}
+function paintFileRow(paper, kind) {
+  const row = document.querySelector(`.row[data-kind="${kind}"]`);
+  if (!row) return;
+  const title = row.dataset.title;
+  const url = fileUrl(paper, kind);
+  if (fileChecks.get(`${paper.id}:${kind}`) === true && url) {
+    row.innerHTML = `<b>${esc(title)}</b><div class="btns"><a class="btn" href="${esc(url)}" target="_blank" rel="noopener">View</a><a class="btn alt" href="${esc(url)}" download>Download</a></div>`;
+  } else {
+    row.innerHTML = missHTML(title, paper, kind);
   }
 }
-async function render() {
-  const my = ++rid, v = $("view"), n = path.length, isFav = path[0] === "fav";
-  $("back").hidden = n === 0;
-  try {
-    if (isFav) await Promise.all([...new Set(favs.get().map(i => i.split("-")[0]))].filter(k => KEYS.includes(k)).map(ensure));
-    else if (n > 1) { await ensure(path[1]); if (path[2] === "OTHER") await ensure("common"); }
-  } catch (e) { if (my === rid) v.innerHTML = empty("Data load nahi hua. Internet check karke page reload karo."); return; }
-  if (my !== rid) return;
+async function verifyPaperFiles(paper, renderId) {
+  await Promise.all([checkFile(paper, "syllabus"), checkFile(paper, "notes")]);
+  if (renderId !== rid || path[4] !== paper.id) return;
+  paintFileRow(paper, "syllabus");
+  paintFileRow(paper, "notes");
+}
+function paperCard(paper) {
+  const credits = paper.cr ? `${paper.cr} credits` : "Paper";
+  return `<button class="item" data-push="${esc(paper.id)}">
+    <span><span class="code">${esc(paper.code)}${newTag(paper)}</span><b>${esc(paper.name)}</b>
+    <small>${credits}</small><small class="status-line" data-note-status="${esc(paper.id)}">${esc(fileState(paper, "notes"))}</small></span>
+    <span class="go">›</span></button>`;
+}
+async function refreshPaperStatuses(papers, renderId) {
+  await Promise.all(papers.map(paper => checkFile(paper, "notes")));
+  if (renderId !== rid) return;
+  document.querySelectorAll("[data-note-status]").forEach(node => {
+    const paper = BYID[node.dataset.noteStatus];
+    if (paper) node.textContent = fileState(paper, "notes");
+  });
+}
+async function refreshDepartmentCounts(departments, papers, renderId) {
+  await Promise.all(papers.map(paper => checkFile(paper, "notes")));
+  if (renderId !== rid) return;
+  departments.forEach((department, index) => {
+    const node = document.querySelector(`[data-dept-count="${index}"]`);
+    if (!node) return;
+    const count = papers.filter(paper => paper.dept === department && fileChecks.get(`${paper.id}:notes`) === true).length;
+    node.textContent = `${count} with notes`;
+  });
+}
+function paperCollectionView(title, subtitle, papers, actionLabel = "Open") {
+  if (!papers.length) return `<h2>${esc(title)}</h2><p class="sub">${esc(subtitle)}</p><div class="empty"><p>Nothing here yet.</p></div>`;
+  return `<h2>${esc(title)}</h2><p class="sub">${esc(subtitle)}</p><div class="list">${papers.map(paper => `
+    <div class="fav"><span class="code">${esc(paper.code)}${newTag(paper)}</span><b>${esc(paper.name)}</b>
+    <div class="meta">${esc(STREAMS[paper.st] || "")} · Semester ${paper.sem} · ${esc(paper.dept || "")}</div>
+    <div class="btns"><button class="btn" data-open="${esc(paper.id)}">${actionLabel}</button>${title === "Saved Papers" ? `<button class="btn alt" data-fav="${esc(paper.id)}" data-refresh="1">Remove</button>` : ""}</div>
+    <small class="status-line" data-note-status="${esc(paper.id)}">${esc(fileState(paper, "notes"))}</small></div>`).join("")}</div>`;
+}
 
-  const L = labels();
-  $("crumbs").innerHTML = L.map((l, i) => `<button data-crumb="${path[2] === "OTHER" && i >= 3 ? i + 1 : i}">${esc(l)}</button>`).join("");
-  $("crumbs").style.display = n ? "flex" : "none";
+async function render() {
+  const renderId = ++rid;
+  const view = $("view"), depth = path.length;
+  const isFav = path[0] === "fav", isRecent = path[0] === "recent";
+  $("back").hidden = depth === 0;
+  $("home").classList.toggle("active", depth === 0);
+  $("favBtn").classList.toggle("active", isFav);
+  $("recentBtn").classList.toggle("active", isRecent);
+
+  try {
+    if (isFav || isRecent) {
+      const ids = isFav ? favs.get() : recents.get();
+      const keys = [...new Set(ids.map(id => id.split("-")[0]).filter(key => KEYS.includes(key)))];
+      await Promise.all(keys.map(ensure));
+    } else if (depth > 1) {
+      await ensure(path[1]);
+      if (path[2] === "OTHER") await ensure("common");
+    }
+  } catch (error) {
+    if (renderId === rid) view.innerHTML = empty("The course data could not be loaded. Check your connection and try again.");
+    return;
+  }
+  if (renderId !== rid) return;
+
+  const crumbs = labels();
+  $("crumbs").innerHTML = crumbs.map((label, index) => `<button data-crumb="${path[2] === "OTHER" && index >= 3 ? index + 1 : index}">${esc(label)}</button>`).join("");
+  $("crumbs").style.display = depth ? "flex" : "none";
 
   if (isFav) {
-    const ps = favs.get().map(i => BYID[i]).filter(Boolean);
-    v.innerHTML = `<h2>Favourites</h2><p class="sub">Tumhare save kiye hue papers</p>` + (ps.length ? `<div class="list">${ps.map(p => {
-      const u = fileUrl(p, "notes");
-      return `<div class="fav"><span class="code">${esc(p.code)}</span><b>${esc(p.name)}</b><div class="meta">${p.st !== "common" ? STREAMS[p.st] + " · " : ""}Semester ${p.sem}${p.dept !== "Common" ? " · " + esc(p.dept) : ""}</div>
-      <div class="btns"><button class="btn" data-open="${esc(p.id)}">Open</button>${u ? `<a class="btn alt" href="${esc(u)}" download>Download</a>` : ""}<button class="btn alt" data-fav="${esc(p.id)}" data-refresh="1">Remove</button></div></div>`; }).join("")}</div>`
-      : `<div class="empty"><p>No favorites yet. Tap ☆ Save on any paper page.</p></div>`);
-  } else if (n === 0) {
-    v.innerHTML = `<h2>Choose Semester</h2><p class="sub">Open your semester to view notes nd syllabus.</p><div class="grid">` +
-      [1,2,3,4,5,6,7,8].map(s => `<button class="item sem" data-push="${s}"><b>${s}</b><small>Semester</small></button>`).join("") + `</div>`;
-  } else if (n === 1) {
-    v.innerHTML = `<h2>Choose Stream</h2><p class="sub">Semester ${path[0]}</p><div class="list">` + Object.entries(STREAMS).map(([k, l]) => item(l, "", `data-push="${k}"`)).join("") + `</div>`;
-  } else if (n === 2) {
-    v.innerHTML = `<h2>Which course?</h2><p class="sub">${STREAMS[path[1]]} · Semester ${path[0]}</p><div class="list">` + Object.entries(GROUPS).map(([k, g]) => item(g.label, g.note, `data-group="${k}"`)).join("") + `</div>`;
-  } else if (n === 3) {
-    const cnt = {}; sel().forEach(p => cnt[p.dept] = (cnt[p.dept] || 0) + 1);
-    const ds = Object.keys(cnt).sort();
-    v.innerHTML = `<h2>Choose Department</h2><p class="sub">${GROUPS[path[2]].label}</p>` + (ds.length ? `<div class="list">${ds.map(d => item(d, cnt[d] + (cnt[d] > 1 ? " papers" : " paper"), `data-push="${esc(d)}"`)).join("")}</div>` : empty("😂 MDC? 3rd semester ke baad iska chapter hi khatam! 📚💀 Abhi tak ye baat kisi ne batayi nahi kya? 🤦‍♂️"));
-  } else if (n === 4) {
-    const ps = sel().filter(p => p.dept === path[3]);
-    v.innerHTML = `<h2>${path[2] === "OTHER" ? "Other subjects" : esc(path[3])}</h2><p class="sub">Choose Paper</p>` + (ps.length ? `<div class="list">${ps.map(p =>
-      `<button class="item" data-push="${esc(p.id)}"><span><span class="code">${esc(p.code)}</span><b>${esc(p.name)}</b><small>${p.cr ? p.cr + " credits · " : ""}${p.notes ? "Notes ready" : "Notes coming soon"}</small></span><span class="go">›</span></button>`).join("")}</div>` : empty("Is department ke papers abhi upload nahi hue."));
-  } else {
-    const p = BYID[path[4]];
-    if (!p) { v.innerHTML = empty("Paper not found."); return; }
-    const on = favs.get().includes(p.id);
-    v.innerHTML = `<div class="sheet"><div class="top"><span class="code">${esc(p.code)}</span><button class="star ${on ? "on" : ""}" data-fav="${esc(p.id)}">${on ? "★ Saved" : "☆ Save"}</button></div>
-      <h3>${esc(p.name)}</h3><div class="meta">${p.dept !== "Common" ? esc(p.dept) + " · " : ""}Semester ${p.sem}${p.cr ? " · " + p.cr + " credits" : ""}</div>
-      ${fileRow("Syllabus", p, "syllabus")}${fileRow("Notes", p, "notes")}</div>`;
-    verify(p);
+    const papers = favs.get().map(id => BYID[id]).filter(Boolean);
+    view.innerHTML = paperCollectionView("Saved Papers", "Your saved papers", papers);
+    refreshPaperStatuses(papers, renderId);
+  } else if (isRecent) {
+    const papers = recents.get().map(id => BYID[id]).filter(Boolean);
+    view.innerHTML = paperCollectionView("Recently Viewed", "Your last 5 opened papers", papers);
+    refreshPaperStatuses(papers, renderId);
+  } else if (depth === 0) {
+    view.innerHTML = `<h2>Choose Semester</h2><p class="sub">Select a semester to explore subjects, notes and syllabi.</p><div class="grid">` +
+      [1, 2, 3, 4, 5, 6, 7, 8].map(semester => `<button class="item sem" data-push="${semester}"><b>${semester}</b><small>Semester</small></button>`).join("") + `</div>`;
+  } else if (depth === 1) {
+    view.innerHTML = `<h2>Choose Stream</h2><p class="sub">Semester ${path[0]}</p><div class="list">` +
+      Object.entries(STREAMS).map(([key, label]) => item(label, "", `data-push="${key}"`)).join("") + `</div>`;
+  } else if (depth === 2) {
+    view.innerHTML = `<h2>Choose Course</h2><p class="sub">${esc(STREAMS[path[1]])} · Semester ${path[0]}</p><div class="list">` +
+      Object.entries(GROUPS).map(([key, group]) => item(group.label, group.note, `data-group="${key}"`)).join("") + `</div>`;
+  } else if (depth === 3) {
+    const papers = sel();
+    const departments = [...new Set(papers.map(paper => paper.dept))].sort();
+    const departmentHTML = departments.map((department, index) => {
+      const count = papers.filter(paper => paper.dept === department).length;
+      return `<button class="item" data-push="${esc(department)}"><span><b>${esc(department)}</b><small>${count} ${count === 1 ? "paper" : "papers"}</small><small class="dept-count" data-dept-count="${index}">Checking notes…</small></span><span class="go">›</span></button>`;
+    }).join("");
+    view.innerHTML = `<h2>Choose Department</h2><p class="sub">${esc(GROUPS[path[2]].label)}</p>` +
+      (departments.length ? `<div class="list">${departmentHTML}</div>` : empty("No departments are available for this course yet."));
+    refreshDepartmentCounts(departments, papers, renderId);
+  } else if (depth === 4) {
+    const papers = sel().filter(paper => paper.dept === path[3]);
+    view.innerHTML = `<h2>${path[2] === "OTHER" ? "Other Subjects" : esc(path[3])}</h2><p class="sub">Choose a paper</p>` +
+      (papers.length ? `<div class="list">${papers.map(paperCard).join("")}</div>` : empty("No papers have been added for this department yet."));
+    refreshPaperStatuses(papers, renderId);
+  } else if (depth === 5) {
+    const paper = BYID[path[4]];
+    if (!paper) { view.innerHTML = `<div class="empty"><p>Paper not found.</p></div>`; return; }
+    const saved = favs.get().includes(paper.id);
+    view.innerHTML = `<div class="sheet"><div class="top"><span class="code">${esc(paper.code)}${newTag(paper)}</span><button class="star ${saved ? "on" : ""}" data-fav="${esc(paper.id)}">${saved ? "★ Saved" : "☆ Save"}</button></div>
+      <h3>${esc(paper.name)}</h3><div class="meta">${paper.dept !== "Common" ? esc(paper.dept) + " · " : ""}Semester ${paper.sem}${paper.cr ? " · " + paper.cr + " credits" : ""}</div>
+      ${fileRow("Syllabus", paper, "syllabus")}${fileRow("Notes", paper, "notes")}</div>`;
+    verifyPaperFiles(paper, renderId);
   }
-  v.classList.remove("in"); void v.offsetWidth; v.classList.add("in");
+  view.classList.remove("in");
+  void view.offsetWidth;
+  view.classList.add("in");
 }
 render();
 
-/* clicks */
-document.addEventListener("click", e => {
-  const t = e.target.closest("button"); if (!t) return;
-  const d = t.dataset;
-  if (d.crumb !== undefined) { let np = path.slice(0, +d.crumb + 1); if (np[2] === "OTHER" && np.length === 3) np = np.slice(0, 2); return go(np); }
-  if (d.group) return go(d.group === "OTHER" ? [...path, d.group, "Common"] : [...path, d.group]);
-  if (d.push !== undefined) return go([...path, path.length === 0 ? +d.push : d.push]);
-  if (d.open) { const p = BYID[d.open]; return go([p.sem, p.st === "common" ? lastStream : p.st, groupOf(p.type), p.st === "common" ? "Common" : p.dept, p.id]); }
-  if (d.fav) {
-    const on = toggleFav(d.fav);
-    toast(on ? "Favourites me add ho gaya" : "Favourites se hata diya");
-    if (d.refresh) return render();
-    t.className = "star" + (on ? " on" : ""); t.textContent = on ? "★ Saved" : "☆ Save"; return;
+/* Click handling */
+document.addEventListener("click", event => {
+  const button = event.target.closest("button");
+  if (!button) return;
+  const data = button.dataset;
+  if (data.crumb !== undefined) {
+    let next = path.slice(0, Number(data.crumb) + 1);
+    if (next[2] === "OTHER" && next.length === 3) next = next.slice(0, 2);
+    return go(next);
   }
-  if (d.req !== undefined) return openReq(reqText(BYID[d.req], d.what === "syllabus" ? "syllabus" : "notes"));
+  if (data.group) return go(data.group === "OTHER" ? [...path, data.group, "Common"] : [...path, data.group]);
+  if (data.push !== undefined) return go([...path, path.length === 0 ? Number(data.push) : data.push]);
+  if (data.open) {
+    const paper = BYID[data.open];
+    if (!paper) return;
+    return go([paper.sem, paper.st === "common" ? lastStream : paper.st, groupOf(paper.type), paper.st === "common" ? "Common" : paper.dept, paper.id]);
+  }
+  if (data.fav) {
+    const on = toggleFav(data.fav);
+    toast(on ? "Added to Saved Papers" : "Removed from Saved Papers");
+    if (data.refresh) return render();
+    button.className = `star${on ? " on" : ""}`;
+    button.textContent = on ? "★ Saved" : "☆ Save";
+    return;
+  }
+  if (data.req !== undefined) return openRequest(requestText(BYID[data.req], data.what === "syllabus" ? "syllabus" : "notes"));
 });
 
-/* request notes */
-function openReq(text) { $("reqText").value = text; $("modal").classList.add("on"); }
-$("reqBtn").onclick = () => openReq(reqText(null));
+/* Request and contact */
+function openRequest(message) {
+  $("reqText").value = message;
+  $("modal").classList.add("on");
+}
+$("reqBtn").onclick = () => openRequest(requestText(null));
 $("closeModal").onclick = () => $("modal").classList.remove("on");
-$("modal").onclick = e => { if (e.target.id === "modal") $("modal").classList.remove("on"); };
-let tt; function toast(m) { const t = $("toast"); t.textContent = m; t.classList.add("on"); clearTimeout(tt); tt = setTimeout(() => t.classList.remove("on"), 2600); }
-$("sendTg").onclick = () => {
-  (navigator.clipboard ? navigator.clipboard.writeText($("reqText").value) : Promise.reject()).then(
-    () => toast("Message copied. Paste it into Telegram and send it."), () => toast("Telegram is opening. Type your message there."));
-  setTimeout(() => window.open("https://t.me/" + CFG.telegram, "_blank"), 700);
+$("modal").onclick = event => { if (event.target.id === "modal") $("modal").classList.remove("on"); };
+let toastTimer;
+function toast(message) {
+  const node = $("toast");
+  node.textContent = message;
+  node.classList.add("on");
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => node.classList.remove("on"), 2600);
+}
+$("sendWhatsApp").onclick = () => {
+  const message = encodeURIComponent($("reqText").value);
+  window.open(`https://wa.me/${CFG.whatsapp}?text=${message}`, "_blank", "noopener");
 };
-$("sendMail").onclick = () => { location.href = `mailto:${CFG.email}?subject=${encodeURIComponent("Notes request - " + CFG.brand)}&body=${encodeURIComponent($("reqText").value)}`; };
+$("sendMail").onclick = () => {
+  const subject = encodeURIComponent(`Notes request - ${CFG.brand}`);
+  const body = encodeURIComponent($("reqText").value);
+  location.href = `mailto:${CFG.email}?subject=${subject}&body=${body}`;
+};
 </script>
 </body>
 </html>
