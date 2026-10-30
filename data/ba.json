@@ -1,6 +1,6 @@
 {
 "papers": [
-{"id": "ba-s1-eco-mjc1", "sem": 1, "dept": "Economics", "ab": "eco", "type": "MJC", "code": "MJC-1", "name": "Introductory Microeconomics", "cr": 6, "syl": "/syllabus/eco/mjc-1.pdf", "notes": "/notes/eco/mjc-1.pdf"},
+{"id": "ba-s1-eco-mjc1", "sem": 1, "dept": "Economics", "ab": "eco", "type": "MJC", "code": "MJC-1", "name": "Introductory Microeconomics", "cr": 6, "syl": "syllabus/eco/mjc-1.pdf", "notes": "/notes/eco/mjc-1.pdf"},
 {"id": "ba-s1-eco-mic1", "sem": 1, "dept": "Economics", "ab": "eco", "type": "MIC", "code": "MIC-1", "name": "Introductory Microeconomics", "cr": 3, "syl": "/syllabus/eco/mic-1.pdf", "notes": "/notes/eco/mic-1.pdf"},
 {"id": "ba-s1-eco-mdc1", "sem": 1, "dept": "Economics", "ab": "eco", "type": "MDC", "code": "MDC-1", "name": "To be selected from the basket", "cr": 3, "syl": "/syllabus/eco/mdc-1.pdf", "notes": "/notes/eco/mdc-1.pdf"},
 {"id": "ba-s2-eco-mjc2", "sem": 2, "dept": "Economics", "ab": "eco", "type": "MJC", "code": "MJC-2", "name": "Mathematical Methods in Economics", "cr": 6, "syl": "/syllabus/eco/mjc-2.pdf", "notes": "/notes/eco/mjc-2.pdf"},
