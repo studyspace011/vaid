@@ -409,12 +409,12 @@ async function render() {
       return `<button class="item" data-push="${esc(department)}"><span><b>${esc(department)}</b><small>${count} ${count === 1 ? "paper" : "papers"}</small><small class="dept-count" data-dept-count="${index}">Checking notes…</small></span><span class="go">›</span></button>`;
     }).join("");
     view.innerHTML = `<h2>Choose Department</h2><p class="sub">${esc(GROUPS[path[2]].label)}</p>` +
-      (departments.length ? `<div class="list">${departmentHTML}</div>` : empty("No departments are available for this course yet."));
+      (departments.length ? `<div class="list">${departmentHTML}</div>` : empty("No departments are available for this course yet. 3rd sem ke baad MDC paper hat jata he. (wese hi jese wo tumhare life chali gyi thi)"));
     refreshDepartmentCounts(departments, papers, renderId);
   } else if (depth === 4) {
     const papers = sel().filter(paper => paper.dept === path[3]);
     view.innerHTML = `<h2>${path[2] === "OTHER" ? "Other Subjects" : esc(path[3])}</h2><p class="sub">Choose a paper</p>` +
-      (papers.length ? `<div class="list">${papers.map(paperCard).join("")}</div>` : empty("No papers have been added for this department yet. 3rd sem ke baad MDC paper hat jata he. (wese hi jese wo tumhare life chali gyi thi)"));
+      (papers.length ? `<div class="list">${papers.map(paperCard).join("")}</div>` : empty("No papers have been added for this department yet."));
     refreshPaperStatuses(papers, renderId);
   } else if (depth === 5) {
     const paper = BYID[path[4]];
