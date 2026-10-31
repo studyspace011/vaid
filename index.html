@@ -414,11 +414,7 @@ async function render() {
   } else if (depth === 4) {
     const papers = sel().filter(paper => paper.dept === path[3]);
     view.innerHTML = `<h2>${path[2] === "OTHER" ? "Other Subjects" : esc(path[3])}</h2><p class="sub">Choose a paper</p>` +
-      (papers.length ? `<div class="list">${papers.map(paperCard).join("")}</div>` : empty("bf/gf ni h kya jo 3rd Sem ke baad v MDC dhundhne ki itni shiddat he? 💀
-yrrr, 3rd ke baad MDC ni hota… phir v tm usse aise dhundh rhe ho jese “syd woh v mujhe yaad krti hogi.” 🌚😭
-
-No papers have been added for this department yet.
-Paper ni h yrr, MDC hi ni he. Itni loyalty pdhai se thik ni he, kv-kv dil v lga liya kro… agar koi available ho toh 🫠💀."));
+      (papers.length ? `<div class="list">${papers.map(paperCard).join("")}</div>` : empty("No papers have been added for this department yet. 3rd sem ke baad MDC paper hat jata he. (wese hi jese wo tumhare life chali gyi thi)"));
     refreshPaperStatuses(papers, renderId);
   } else if (depth === 5) {
     const paper = BYID[path[4]];
