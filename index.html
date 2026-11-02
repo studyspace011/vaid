@@ -51,13 +51,13 @@ button{font:inherit;color:inherit;cursor:pointer;border:0;background:none}
 #splash{position:fixed;inset:0;z-index:50;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:28px;background:radial-gradient(circle at 50% 42%,#fde39a 0%,#f3c13f 45%,#a9741a 100%);transition:opacity .5s}
 #splash.out{opacity:0;pointer-events:none}
 .ring{position:relative;width:176px;height:176px;display:grid;place-items:center}
-.ring::before{content:"";position:absolute;inset:0;border-radius:50%;border:3px solid transparent;border-top-color:var(--amber);border-right-color:var(--amber);animation:spin 1.4s linear infinite}
+.ring::before{content:"";position:absolute;inset:0;border-radius:50%;border:3px solid transparent;border-top-color:var(--amber);border-right-color:var(--amber);animation:spin 2s linear infinite}
 .logo{width:136px;height:136px;border-radius:50%;border:4px solid #fff8e6;background:var(--brown);color:#fde39a;display:grid;place-items:center;overflow:hidden;font:700 64px var(--serif)}
 .logo img{width:100%;height:100%;object-fit:cover}
 #splash h1{font:700 34px var(--serif);color:var(--brown)}
 #splash p{font-size:12px;letter-spacing:.28em;color:#6b4513;text-transform:uppercase;margin-top:-18px}
 .bar{width:220px;height:4px;border-radius:4px;background:rgba(58,31,10,.18);overflow:hidden}
-.bar i{display:block;height:100%;width:0;background:var(--brown);animation:fill 1.5s ease-out forwards}
+.bar i{display:block;height:100%;width:0;background:var(--brown);animation:fill 2.5s ease-out forwards}
 @keyframes spin{to{transform:rotate(360deg)}}@keyframes fill{to{width:100%}}@keyframes in{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
 #view.in{animation:in .22s ease}
 @media(prefers-reduced-motion:reduce){.ring::before,#view.in{animation:none}.bar i{animation:none;width:100%}}
@@ -193,7 +193,7 @@ const logoHTML = `<img src="${esc(CFG.logo)}" alt="" onerror="this.replaceWith(d
 ["splashLogo", "hdrLogo"].forEach(id => $(id).innerHTML = logoHTML);
 $("splashName").textContent = $("hdrName").textContent = document.title = CFG.brand;
 $("splashTag").textContent = CFG.tagline;
-setTimeout(() => $("splash").classList.add("out"), 1200);
+setTimeout(() => $("splash").classList.add("out"), 2500);
 
 /* Local storage */
 function readStore(key, fallback = []) {
