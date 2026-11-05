@@ -55,7 +55,7 @@
 {"id": "bsc-s7-zoo-mjc15", "sem": 7, "dept": "Zoology", "ab": "zoo", "type": "MJC", "code": "MJC-15", "name": "Immunology and Microbiology", "cr": 6, "syl": "/syllabus/zoo/mjc-15.pdf", "notes": "/notes/zoo/mjc-15.pdf"},
 {"id": "bsc-s7-zoo-mic9", "sem": 7, "dept": "Zoology", "ab": "zoo", "type": "MIC", "code": "MIC-9", "name": "Animal Behaviour", "cr": 4, "syl": "/syllabus/zoo/mic-9.pdf", "notes": "/notes/zoo/mic-9.pdf"},
 {"id": "bsc-s8-zoo-mjc16", "sem": 8, "dept": "Zoology", "ab": "zoo", "type": "MJC", "code": "MJC-16", "name": "Instrumentation and Biometry", "cr": 4, "syl": "/syllabus/zoo/mjc-16.pdf", "notes": "/notes/zoo/mjc-16.pdf"},
-{"id": "bsc-s8-zoo-mic10", "sem": 8, "dept": "Zoology", "ab": "zoo", "type": "MIC", "code": "MIC-10", "name": "Endocrinology", "cr": 4, "syl": "/syllabus/zoo/mic-10.pdf", "notes": "/notes/zoo/mic-10.pdf"}
+{"id": "bsc-s8-zoo-mic10", "sem": 8, "dept": "Zoology", "ab": "zoo", "type": "MIC", "code": "MIC-10", "name": "Endocrinology", "cr": 4, "syl": "/syllabus/zoo/mic-10.pdf", "notes": "/notes/zoo/mic-10.pdf"},
 
 {"id": "bsc-s1-phy-mjc1", "sem": 1, "dept": "Physics", "ab": "phy", "type": "MJC", "code": "MJC-1", "name": "Mathematical Physics-I & Mechanics", "cr": 6, "syl": "/syllabus/phy/mjc-1.pdf", "notes": "/notes/phy/mjc-1.pdf"},
 {"id": "bsc-s1-phy-mic1", "sem": 1, "dept": "Physics", "ab": "phy", "type": "MIC", "code": "MIC-1", "name": "Mechanics", "cr": 3, "syl": "/syllabus/phy/mic-1.pdf", "notes": "/notes/phy/mic-1.pdf"},
