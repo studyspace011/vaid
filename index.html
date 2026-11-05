@@ -200,7 +200,7 @@ function readStore(key, fallback = []) {
   try {
     const value = JSON.parse(localStorage.getItem(key) || "null");
     return Array.isArray(value) ? value : fallback;
-  } catch (error) { return fallback; }
+   return fallback; }
 }
 function writeStore(key, value) {
   try { localStorage.setItem(key, JSON.stringify(value)); } catch (error) {}
@@ -430,10 +430,16 @@ async function render() {
       await ensure(path[1]);
       if (path[2] === "OTHER") await ensure("common");
     }
-  } catch (error) {
-    if (renderId === rid) view.innerHTML = empty("The course data could not be loaded. Check your connection and try again.");
-    return;
+ } catch (error) {
+  console.error("VAID Data Loading Error:", error);
+
+  if (renderId === rid) {
+    view.innerHTML = empty(
+      `Course data could not be loaded: ${error.message}`
+    );
   }
+  return;
+}
   if (renderId !== rid) return;
 
   const crumbs = labels();
