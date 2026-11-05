@@ -12,7 +12,7 @@
 <!-- Open Graph: WhatsApp and other link previews -->
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="VAID">
-<meta property="og:title" content="VAID | Notes & Syllabus">
+<meta property="og:title" content="VAID | Notes &amp; Syllabus">
 <meta property="og:description" content="Explore semester-wise notes and syllabus for B.A., B.Sc. and B.Com. students.">
 <meta property="og:url" content="https://studyspace011.github.io/vaid/">
 <meta property="og:image" content="https://studyspace011.github.io/vaid/og-preview.png">
@@ -28,18 +28,11 @@
 <meta name="twitter:description" content="Explore semester-wise notes and syllabus for B.A., B.Sc. and B.Com. students.">
 <meta name="twitter:image" content="https://studyspace011.github.io/vaid/og-preview.png">
 
-<!-- Existing font links -->
+<!-- Fonts -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="theme-color" content="#f4efe6">
-<title>VAID</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
 :root{--bg:#f4efe6;--card:#fff;--ink:#2b1b0e;--mute:#7a6a58;--line:#e6dccb;--gold:#e8a920;--amber:#b86e00;--brown:#3a1f0a;--soft:#f1e8d8;
 --serif:'Playfair Display',Georgia,serif;--sans:'Inter',system-ui,sans-serif}
@@ -49,7 +42,7 @@ body{padding:env(safe-area-inset-top) 0 calc(96px + env(safe-area-inset-bottom))
 button{font:inherit;color:inherit;cursor:pointer;border:0;background:none}
 :focus-visible{outline:2px solid var(--amber);outline-offset:2px}
 #splash{position:fixed;inset:0;z-index:50;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:28px;background:radial-gradient(circle at 50% 42%,#fde39a 0%,#f3c13f 45%,#a9741a 100%);transition:opacity .5s}
-#splash.out{opacity:0;pointer-events:none}
+#splash.out{opacity:0;pointer-events:none;visibility:hidden;transition:opacity .5s,visibility 0s .5s}
 .ring{position:relative;width:176px;height:176px;display:grid;place-items:center}
 .ring::before{content:"";position:absolute;inset:0;border-radius:50%;border:3px solid transparent;border-top-color:var(--amber);border-right-color:var(--amber);animation:spin 2s linear infinite}
 .logo{width:136px;height:136px;border-radius:50%;border:4px solid #fff8e6;background:var(--brown);color:#fde39a;display:grid;place-items:center;overflow:hidden;font:700 64px var(--serif)}
@@ -127,6 +120,9 @@ h2{font:700 28px/1.2 var(--serif);margin-bottom:4px}
 .contact-links{display:flex;flex-direction:column;gap:7px}
 .contact-links a{color:var(--amber);font-size:13px;font-weight:600;text-decoration:none}
 @media(max-width:360px){.pill{gap:2px;padding:5px}.pill button{padding:9px 9px;font-size:12px}}
+body.lock{overflow:hidden}
+#modal .box{max-height:92vh;overflow-y:auto}
+#view>.sub{padding:24px 0;text-align:center}
 </style>
 </head>
 <body>
@@ -141,14 +137,14 @@ h2{font:700 28px/1.2 var(--serif);margin-bottom:4px}
 </header>
 <main><nav class="crumbs" id="crumbs" aria-label="Path"></nav><div id="view"></div></main>
 <div class="pill">
-  <button id="home" class="main">Home</button>
+  <button id="home" class="active">Home</button>
   <button id="favBtn">★ Saved</button>
   <button id="recentBtn">Recent</button>
   <button id="reqBtn">Request</button>
 </div>
 <div id="modal" role="dialog" aria-modal="true"><div class="box">
   <h3>Request Notes</h3>
-  <p>Ur message is ready. Edit it if needed, then choose how to contact us. uh can click on whatsapp or email.</p>
+  <p>Your message is ready. Edit it if needed, then send it on WhatsApp or Email.</p>
   <textarea id="reqText"></textarea>
   <div class="btns"><button class="btn" id="sendWhatsApp">WhatsApp</button><button class="btn alt" id="sendMail">Email</button></div>
   <div class="contact">
@@ -185,22 +181,25 @@ const esc = value => String(value ?? "").replace(/[&<>"']/g, ch => ({
 }[ch]));
 
 const DATA = {}, BYID = {}, loading = {};
-const fileChecks = new Map();
-let path = [], lastStream = "ba", rid = 0;
+const fileChecks = new Map();   // "paperId:kind" -> true | false | Promise
+const checkFailed = new Set();  // checks that failed because of a network error
+let path = [], lastStream = "ba", rid = 0, crumbList = [];
 
-/* Brand */
+/* ===================== BRAND / SPLASH ===================== */
 const logoHTML = `<img src="${esc(CFG.logo)}" alt="" onerror="this.replaceWith(document.createTextNode('${esc(CFG.brand[0])}'))">`;
-["splashLogo", "hdrLogo"].forEach(id => $(id).innerHTML = logoHTML);
-$("splashName").textContent = $("hdrName").textContent = document.title = CFG.brand;
+["splashLogo", "hdrLogo"].forEach(id => { $(id).innerHTML = logoHTML; });
+$("splashName").textContent = $("hdrName").textContent = CFG.brand;
 $("splashTag").textContent = CFG.tagline;
 setTimeout(() => $("splash").classList.add("out"), 2500);
 
-/* Local storage */
+/* ===================== LOCAL STORAGE ===================== */
 function readStore(key, fallback = []) {
   try {
     const value = JSON.parse(localStorage.getItem(key) || "null");
     return Array.isArray(value) ? value : fallback;
-   return fallback; }
+  } catch (error) {
+    return fallback;
+  }
 }
 function writeStore(key, value) {
   try { localStorage.setItem(key, JSON.stringify(value)); } catch (error) {}
@@ -217,26 +216,41 @@ function markViewed(id) {
   recents.set([id, ...recents.get().filter(item => item !== id)].slice(0, 5));
 }
 
+/* ===================== DATA LOADING ===================== */
+/* Make every paper consistent, so one odd value in the JSON cannot hide papers. */
+function normalizePaper(paper, key, index) {
+  const p = { ...paper, st: key };
+  p.id = String(paper.id ?? `${key}-${index}`);
+  p.sem = Number(paper.sem);
+  p.type = String(paper.type ?? "").trim().toUpperCase();
+  p.code = String(paper.code ?? "");
+  p.name = String(paper.name ?? paper.title ?? "Untitled paper");
+  p.dept = String(paper.dept ?? "").trim() || "Common";
+  return p;
+}
+
 /* Load one stream file only when it is needed. */
 function ensure(key) {
   if (DATA[key]) return Promise.resolve();
   if (loading[key]) return loading[key];
   const url = new URL(`data/${key}.json`, document.baseURI).href;
-  loading[key] = fetch(url)
+  loading[key] = fetch(url, { cache: "no-cache" })
     .then(response => {
-      if (!response.ok) throw new Error(`Could not load data/${key}.json`);
-      return response.json();
+      if (!response.ok) throw new Error(`data/${key}.json not found (HTTP ${response.status}).`);
+      return response.json().catch(() => { throw new Error(`data/${key}.json is not valid JSON.`); });
     })
     .then(data => {
-      if (!data || !Array.isArray(data.papers)) throw new Error(`Invalid data/${key}.json`);
-      DATA[key] = data.papers.map(paper => ({ ...paper, st: key }));
+      const list = Array.isArray(data) ? data : data && data.papers;
+      if (!Array.isArray(list)) throw new Error(`data/${key}.json has no "papers" list.`);
+      DATA[key] = list.map((paper, index) => normalizePaper(paper, key, index));
       DATA[key].forEach(paper => { BYID[paper.id] = paper; });
+      delete loading[key];
     })
     .catch(error => { delete loading[key]; throw error; });
   return loading[key];
 }
 
-/* The JSON now stores the complete PDF path in syl and notes. */
+/* The JSON stores the complete PDF path in syl and notes. */
 function fileUrl(paper, kind) {
   const raw = paper?.[kind === "notes" ? "notes" : "syl"];
   if (raw === 0 || raw === false || raw == null || raw === "") return "";
@@ -256,24 +270,38 @@ function fileUrl(paper, kind) {
 /* Verify the actual PDF instead of trusting a path written in JSON. */
 function checkFile(paper, kind) {
   const key = `${paper.id}:${kind}`;
-  if (fileChecks.has(key)) return fileChecks.get(key);
+  if (fileChecks.has(key)) return Promise.resolve(fileChecks.get(key));
   const url = fileUrl(paper, kind);
   if (!url) { fileChecks.set(key, false); return Promise.resolve(false); }
+
+  // Files on another website cannot be checked from the browser (CORS), so trust the link.
+  let sameOrigin = true;
+  try { sameOrigin = new URL(url).origin === location.origin; } catch (error) {}
+  if (!sameOrigin || /^(blob:|data:)/i.test(url)) { fileChecks.set(key, true); return Promise.resolve(true); }
+
+  checkFailed.delete(key);
+  const isPdf = response => response.ok && !/text\/html/i.test(response.headers.get("content-type") || "");
   const pending = fetch(url, { method: "HEAD", cache: "no-store" })
     .then(response => {
-      const type = response.headers.get("content-type") || "";
-      return response.ok && !/text\/html/i.test(type);
+      // Some hosts do not allow HEAD. Ask for just the first byte instead.
+      if ([403, 405, 501].includes(response.status)) {
+        return fetch(url, { headers: { Range: "bytes=0-0" }, cache: "no-store" }).then(isPdf);
+      }
+      return isPdf(response);
     })
-    .catch(() => false)
-    .then(available => { fileChecks.set(key, available); return available; });
+    .then(available => { fileChecks.set(key, available); return available; })
+    .catch(() => { fileChecks.delete(key); checkFailed.add(key); return false; });
   fileChecks.set(key, pending);
   return pending;
 }
 function fileState(paper, kind) {
-  const state = fileChecks.get(`${paper.id}:${kind}`);
-  if (state === true) return kind === "notes" ? "Notes available" : "Syllabus available";
-  if (state === false) return kind === "notes" ? "Notes not uploaded yet" : "Syllabus not uploaded yet";
-  return kind === "notes" ? "Checking notes…" : "Checking syllabus…";
+  const key = `${paper.id}:${kind}`;
+  const state = fileChecks.get(key);
+  const name = kind === "notes" ? "Notes" : "Syllabus";
+  if (state === true) return `${name} available`;
+  if (state === false) return `${name} not uploaded yet`;
+  if (checkFailed.has(key)) return `${name} status unavailable`;
+  return `Checking ${name.toLowerCase()}…`;
 }
 function isNew(paper) {
   if (!paper.added) return false;
@@ -284,9 +312,12 @@ function isNew(paper) {
 }
 function newTag(paper) { return isNew(paper) ? '<span class="new-tag">NEW</span>' : ""; }
 
-/* Navigation */
+/* ===================== NAVIGATION ===================== */
 history.replaceState({ path: [] }, "");
+const samePath = (a, b) => a.length === b.length && a.every((value, index) => String(value) === String(b[index]));
+
 function go(nextPath) {
+  if (samePath(path, nextPath)) { window.scrollTo(0, 0); return; }
   path = nextPath;
   if (STREAMS[nextPath[1]]) lastStream = nextPath[1];
   if (nextPath.length === 5 && BYID[nextPath[4]]) markViewed(nextPath[4]);
@@ -295,7 +326,8 @@ function go(nextPath) {
   window.scrollTo(0, 0);
 }
 addEventListener("popstate", event => {
-  path = (event.state && event.state.path) || [];
+  path = (event.state && Array.isArray(event.state.path)) ? event.state.path : [];
+  if (STREAMS[path[1]]) lastStream = path[1];
   render();
 });
 $("back").onclick = () => history.back();
@@ -305,27 +337,27 @@ $("recentBtn").onclick = () => go(["recent"]);
 
 const groupOf = type => Object.keys(GROUPS).find(key => GROUPS[key].types.includes(type));
 const pool = () => path[2] === "OTHER" ? DATA.common : DATA[path[1]];
-const sel = () => (pool() || []).filter(paper => paper.sem === path[0] && GROUPS[path[2]]?.types.includes(paper.type));
-function labels() {
-  if (path[0] === "fav") return ["Saved Papers"];
-  if (path[0] === "recent") return ["Recently Viewed"];
-  const result = [];
-  if (path.length > 0) result.push(`Semester ${path[0]}`);
-  if (path.length > 1) result.push(STREAMS[path[1]] || path[1]);
-  if (path.length > 2) result.push(GROUPS[path[2]]?.label || path[2]);
-  if (path.length > 3 && path[2] !== "OTHER") result.push(path[3]);
-  if (path.length > 4) result.push(BYID[path[4]]?.code || "");
-  return result;
+const sel = () => (pool() || []).filter(paper => paper.sem === Number(path[0]) && GROUPS[path[2]]?.types.includes(paper.type));
+
+/* Breadcrumbs: every crumb knows exactly which path it opens. */
+function buildCrumbs() {
+  if (path[0] === "fav") return [{ label: "Saved Papers", to: ["fav"] }];
+  if (path[0] === "recent") return [{ label: "Recently Viewed", to: ["recent"] }];
+  const other = path[2] === "OTHER";
+  const out = [];
+  if (path.length > 0) out.push({ label: `Semester ${path[0]}`, to: path.slice(0, 1) });
+  if (path.length > 1) out.push({ label: STREAMS[path[1]] || path[1], to: path.slice(0, 2) });
+  if (path.length > 2) out.push({ label: GROUPS[path[2]]?.label || path[2], to: path.slice(0, other ? 4 : 3) });
+  if (path.length > 3 && !other) out.push({ label: path[3], to: path.slice(0, 4) });
+  if (path.length > 4) out.push({ label: BYID[path[4]]?.code || "Paper", to: path.slice(0, 5) });
+  return out;
 }
 
 function requestText(paper, kind = "notes") {
-  const type = kind.toLowerCase() === "syllabus" ? "Syllabus" : "Notes";
+  const type = String(kind).toLowerCase() === "syllabus" ? "Syllabus" : "Notes";
 
   if (paper) {
-    const stream = paper.st !== "common"
-      ? (STREAMS[paper.st] || paper.st)
-      : "Common";
-
+    const stream = paper.st !== "common" ? (STREAMS[paper.st] || paper.st) : "Common";
     return [
       `Request Type: ${type}`,
       `Course: ${stream}`,
@@ -339,8 +371,7 @@ function requestText(paper, kind = "notes") {
     ].join("\n");
   }
 
-  const current = labels();
-
+  const current = buildCrumbs().map(crumb => crumb.label);
   return [
     `Request Type: ${type}`,
     `Study Area: ${current.length ? current.join(" > ") : "General"}`,
@@ -351,9 +382,18 @@ function requestText(paper, kind = "notes") {
   ].join("\n");
 }
 
-/* Small reusable UI pieces */
+/* ===================== SMALL UI PIECES ===================== */
 const empty = (message, id = "", kind = "notes") => `<div class="empty"><p>${esc(message)}</p><button class="btn" data-req="${esc(id)}" data-what="${esc(kind)}">Request notes</button></div>`;
 const item = (label, note, attr, cls = "") => `<button class="item ${cls}" ${attr}><span><b>${esc(label)}</b>${note ? `<small>${esc(note)}</small>` : ""}</span><span class="go">›</span></button>`;
+
+function errorView(error) {
+  const hint = location.protocol === "file:"
+    ? " Open the site through a web server (GitHub Pages or a local server). Browsers block data files when a page is opened directly from the disk."
+    : "";
+  const reason = error && error.message ? error.message : "Please check your internet connection.";
+  return `<div class="empty"><p>${esc("Course data could not be loaded. " + reason + hint)}</p><button class="btn" data-retry="1">Try again</button></div>`;
+}
+
 function missHTML(title, paper, kind) {
   return `<b>${esc(title)}</b><div class="btns"><span class="btn off">View</span><span class="btn off">Download</span></div>
     <p class="miss">Not uploaded yet. <button class="link" data-req="${esc(paper.id)}" data-what="${kind}">Request it</button></p>`;
@@ -364,9 +404,11 @@ function fileRow(title, paper, kind) {
 function paintFileRow(paper, kind) {
   const row = document.querySelector(`.row[data-kind="${kind}"]`);
   if (!row) return;
+  const key = `${paper.id}:${kind}`;
   const title = row.dataset.title;
   const url = fileUrl(paper, kind);
-  if (fileChecks.get(`${paper.id}:${kind}`) === true && url) {
+  // If the check failed only because of the network, still offer the link.
+  if (url && (fileChecks.get(key) === true || checkFailed.has(key))) {
     row.innerHTML = `<b>${esc(title)}</b><div class="btns"><a class="btn" href="${esc(url)}" target="_blank" rel="noopener">View</a><a class="btn alt" href="${esc(url)}" download>Download</a></div>`;
   } else {
     row.innerHTML = missHTML(title, paper, kind);
@@ -382,7 +424,7 @@ function paperCard(paper) {
   const credits = paper.cr ? `${paper.cr} credits` : "Paper";
   return `<button class="item" data-push="${esc(paper.id)}">
     <span><span class="code">${esc(paper.code)}${newTag(paper)}</span><b>${esc(paper.name)}</b>
-    <small>${credits}</small><small class="status-line" data-note-status="${esc(paper.id)}">${esc(fileState(paper, "notes"))}</small></span>
+    <small>${esc(credits)}</small><small class="status-line" data-note-status="${esc(paper.id)}">${esc(fileState(paper, "notes"))}</small></span>
     <span class="go">›</span></button>`;
 }
 async function refreshPaperStatuses(papers, renderId) {
@@ -405,14 +447,24 @@ async function refreshDepartmentCounts(departments, papers, renderId) {
 }
 function paperCollectionView(title, subtitle, papers, actionLabel = "Open") {
   if (!papers.length) return `<h2>${esc(title)}</h2><p class="sub">${esc(subtitle)}</p><div class="empty"><p>Nothing here yet.</p></div>`;
-  return `<h2>${esc(title)}</h2><p class="sub">${esc(subtitle)}</p><div class="list">${papers.map(paper => `
+  return `<h2>${esc(title)}</h2><p class="sub">${esc(subtitle)}</p><div class="list">${papers.map(paper => {
+    const meta = [STREAMS[paper.st], `Semester ${paper.sem}`, paper.dept !== "Common" ? paper.dept : ""].filter(Boolean).join(" · ");
+    return `
     <div class="fav"><span class="code">${esc(paper.code)}${newTag(paper)}</span><b>${esc(paper.name)}</b>
-    <div class="meta">${esc(STREAMS[paper.st] || "")} · Semester ${paper.sem} · ${esc(paper.dept || "")}</div>
+    <div class="meta">${esc(meta)}</div>
     <div class="btns"><button class="btn" data-open="${esc(paper.id)}">${actionLabel}</button>${title === "Saved Papers" ? `<button class="btn alt" data-fav="${esc(paper.id)}" data-refresh="1">Remove</button>` : ""}</div>
-    <small class="status-line" data-note-status="${esc(paper.id)}">${esc(fileState(paper, "notes"))}</small></div>`).join("")}</div>`;
+    <small class="status-line" data-note-status="${esc(paper.id)}">${esc(fileState(paper, "notes"))}</small></div>`;
+  }).join("")}</div>`;
 }
 
+/* ===================== RENDER ===================== */
 async function render() {
+  // "Other subjects" always needs the "Common" department step.
+  if (path[2] === "OTHER" && path.length === 3) {
+    path = [...path, "Common"];
+    history.replaceState({ path }, "");
+  }
+
   const renderId = ++rid;
   const view = $("view"), depth = path.length;
   const isFav = path[0] === "fav", isRecent = path[0] === "recent";
@@ -421,33 +473,34 @@ async function render() {
   $("favBtn").classList.toggle("active", isFav);
   $("recentBtn").classList.toggle("active", isRecent);
 
-  try {
-    if (isFav || isRecent) {
-      const ids = isFav ? favs.get() : recents.get();
-      const keys = [...new Set(ids.map(id => id.split("-")[0]).filter(key => KEYS.includes(key)))];
-      await Promise.all(keys.map(ensure));
-    } else if (depth > 1) {
-      await ensure(path[1]);
-      if (path[2] === "OTHER") await ensure("common");
+  /* Which data files does this screen need? */
+  let needed = [];
+  if (isFav || isRecent) needed = KEYS;
+  else if (depth >= 3) needed = path[2] === "OTHER" ? ["common"] : [path[1]];
+  else if (depth === 2) ensure(path[1]).catch(() => {}); // quietly warm up the next screen
+
+  if (needed.length) {
+    if (needed.some(key => !DATA[key])) view.innerHTML = `<p class="sub">Loading…</p>`;
+    const results = await Promise.allSettled(needed.map(ensure));
+    if (renderId !== rid) return;
+    const failures = results.filter(result => result.status === "rejected");
+    const fatal = (isFav || isRecent) ? failures.length === needed.length : failures.length > 0;
+    if (fatal) {
+      console.error("VAID data loading error:", failures[0].reason);
+      crumbList = buildCrumbs();
+      $("crumbs").innerHTML = crumbList.map((crumb, index) => `<button data-crumb="${index}">${esc(crumb.label)}</button>`).join("");
+      $("crumbs").style.display = crumbList.length ? "flex" : "none";
+      view.innerHTML = errorView(failures[0].reason);
+      return;
     }
- } catch (error) {
-  console.error("VAID Data Loading Error:", error);
-
-  if (renderId === rid) {
-    view.innerHTML = empty(
-      `Course data could not be loaded: ${error.message}`
-    );
   }
-  return;
-}
-  if (renderId !== rid) return;
 
-  const crumbs = labels();
-  $("crumbs").innerHTML = crumbs.map((label, index) => `<button data-crumb="${path[2] === "OTHER" && index >= 3 ? index + 1 : index}">${esc(label)}</button>`).join("");
-  $("crumbs").style.display = depth ? "flex" : "none";
+  crumbList = buildCrumbs();
+  $("crumbs").innerHTML = crumbList.map((crumb, index) => `<button data-crumb="${index}">${esc(crumb.label)}</button>`).join("");
+  $("crumbs").style.display = crumbList.length ? "flex" : "none";
 
   if (isFav) {
-    const papers = favs.get().map(id => BYID[id]).filter(Boolean);
+    const papers = favs.get().slice().reverse().map(id => BYID[id]).filter(Boolean);
     view.innerHTML = paperCollectionView("Saved Papers", "Your saved papers", papers);
     refreshPaperStatuses(papers, renderId);
   } else if (isRecent) {
@@ -458,10 +511,12 @@ async function render() {
     view.innerHTML = `<h2>Choose Semester</h2><p class="sub">Select a semester to explore subjects, notes and syllabus.</p><div class="grid">` +
       [1, 2, 3, 4, 5, 6, 7, 8].map(semester => `<button class="item sem" data-push="${semester}"><b>${semester}</b><small>Semester</small></button>`).join("") + `</div>`;
   } else if (depth === 1) {
-    view.innerHTML = `<h2>Choose Stream</h2><p class="sub">Semester ${path[0]}</p><div class="list">` +
+    view.innerHTML = `<h2>Choose Stream</h2><p class="sub">Semester ${esc(path[0])}</p><div class="list">` +
       Object.entries(STREAMS).map(([key, label]) => item(label, "", `data-push="${key}"`)).join("") + `</div>`;
+  } else if (!STREAMS[path[1]] || (depth >= 3 && !GROUPS[path[2]])) {
+    view.innerHTML = `<div class="empty"><p>This page does not exist.</p><button class="btn" data-home="1">Go to Home</button></div>`;
   } else if (depth === 2) {
-    view.innerHTML = `<h2>Choose Course</h2><p class="sub">${esc(STREAMS[path[1]])} · Semester ${path[0]}</p><div class="list">` +
+    view.innerHTML = `<h2>Choose Course</h2><p class="sub">${esc(STREAMS[path[1]])} · Semester ${esc(path[0])}</p><div class="list">` +
       Object.entries(GROUPS).map(([key, group]) => item(group.label, group.note, `data-group="${key}"`)).join("") + `</div>`;
   } else if (depth === 3) {
     const papers = sel();
@@ -474,18 +529,21 @@ async function render() {
       (departments.length ? `<div class="list">${departmentHTML}</div>` : empty("No departments are available for this course yet. 3rd sem ke baad MDC paper hat jata he. (wese hi jese wo tumhare life chali gyi thi)"));
     refreshDepartmentCounts(departments, papers, renderId);
   } else if (depth === 4) {
-    const papers = sel().filter(paper => paper.dept === path[3]);
+    const all = sel();
+    const papers = path[2] === "OTHER" ? all : all.filter(paper => paper.dept === path[3]);
     view.innerHTML = `<h2>${path[2] === "OTHER" ? "Other Subjects" : esc(path[3])}</h2><p class="sub">Choose a paper</p>` +
       (papers.length ? `<div class="list">${papers.map(paperCard).join("")}</div>` : empty("No papers have been added for this department yet."));
     refreshPaperStatuses(papers, renderId);
   } else if (depth === 5) {
     const paper = BYID[path[4]];
-    if (!paper) { view.innerHTML = `<div class="empty"><p>Paper not found.</p></div>`; return; }
+    if (!paper) { view.innerHTML = `<div class="empty"><p>Paper not found.</p><button class="btn" data-home="1">Go to Home</button></div>`; return; }
     const saved = favs.get().includes(paper.id);
     view.innerHTML = `<div class="sheet"><div class="top"><span class="code">${esc(paper.code)}${newTag(paper)}</span><button class="star ${saved ? "on" : ""}" data-fav="${esc(paper.id)}">${saved ? "★ Saved" : "☆ Save"}</button></div>
-      <h3>${esc(paper.name)}</h3><div class="meta">${paper.dept !== "Common" ? esc(paper.dept) + " · " : ""}Semester ${paper.sem}${paper.cr ? " · " + paper.cr + " credits" : ""}</div>
+      <h3>${esc(paper.name)}</h3><div class="meta">${paper.dept !== "Common" ? esc(paper.dept) + " · " : ""}Semester ${esc(paper.sem)}${paper.cr ? " · " + esc(paper.cr) + " credits" : ""}</div>
       ${fileRow("Syllabus", paper, "syllabus")}${fileRow("Notes", paper, "notes")}</div>`;
     verifyPaperFiles(paper, renderId);
+  } else {
+    view.innerHTML = `<div class="empty"><p>This page does not exist.</p><button class="btn" data-home="1">Go to Home</button></div>`;
   }
   view.classList.remove("in");
   void view.offsetWidth;
@@ -493,22 +551,25 @@ async function render() {
 }
 render();
 
-/* Click handling */
+/* ===================== CLICK HANDLING ===================== */
 document.addEventListener("click", event => {
   const button = event.target.closest("button");
   if (!button) return;
   const data = button.dataset;
   if (data.crumb !== undefined) {
-    let next = path.slice(0, Number(data.crumb) + 1);
-    if (next[2] === "OTHER" && next.length === 3) next = next.slice(0, 2);
-    return go(next);
+    const crumb = crumbList[Number(data.crumb)];
+    return crumb && go(crumb.to);
   }
+  if (data.home !== undefined) return go([]);
+  if (data.retry !== undefined) return render();
   if (data.group) return go(data.group === "OTHER" ? [...path, data.group, "Common"] : [...path, data.group]);
   if (data.push !== undefined) return go([...path, path.length === 0 ? Number(data.push) : data.push]);
   if (data.open) {
     const paper = BYID[data.open];
     if (!paper) return;
-    return go([paper.sem, paper.st === "common" ? lastStream : paper.st, groupOf(paper.type), paper.st === "common" ? "Common" : paper.dept, paper.id]);
+    const group = groupOf(paper.type) || "OTHER";
+    const other = group === "OTHER";
+    return go([paper.sem, paper.st === "common" ? lastStream : paper.st, group, other ? "Common" : paper.dept, paper.id]);
   }
   if (data.fav) {
     const on = toggleFav(data.fav);
@@ -521,14 +582,21 @@ document.addEventListener("click", event => {
   if (data.req !== undefined) return openRequest(requestText(BYID[data.req], data.what === "syllabus" ? "syllabus" : "notes"));
 });
 
-/* Request and contact */
+/* ===================== REQUEST AND CONTACT ===================== */
 function openRequest(message) {
   $("reqText").value = message;
   $("modal").classList.add("on");
+  document.body.classList.add("lock");
+}
+function closeModal() {
+  $("modal").classList.remove("on");
+  document.body.classList.remove("lock");
 }
 $("reqBtn").onclick = () => openRequest(requestText(null));
-$("closeModal").onclick = () => $("modal").classList.remove("on");
-$("modal").onclick = event => { if (event.target.id === "modal") $("modal").classList.remove("on"); };
+$("closeModal").onclick = closeModal;
+$("modal").onclick = event => { if (event.target.id === "modal") closeModal(); };
+addEventListener("keydown", event => { if (event.key === "Escape") closeModal(); });
+
 let toastTimer;
 function toast(message) {
   const node = $("toast");
@@ -537,9 +605,15 @@ function toast(message) {
   clearTimeout(toastTimer);
   toastTimer = setTimeout(() => node.classList.remove("on"), 2600);
 }
+
+/* window.open with "noopener" always returns null, so open links through a real anchor. */
+function openLink(url) {
+  const a = document.createElement("a");
+  a.href = url; a.target = "_blank"; a.rel = "noopener";
+  document.body.appendChild(a); a.click(); a.remove();
+}
 $("sendWhatsApp").onclick = () => {
-  const message = encodeURIComponent($("reqText").value);
-  window.open(`https://wa.me/${CFG.whatsapp}?text=${message}`, "_blank", "noopener");
+  openLink(`https://wa.me/${CFG.whatsapp}?text=${encodeURIComponent($("reqText").value)}`);
 };
 $("sendMail").onclick = () => {
   const subject = encodeURIComponent(`Notes request - ${CFG.brand}`);
