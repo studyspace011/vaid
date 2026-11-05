@@ -144,9 +144,9 @@ body.lock{overflow:hidden}
 </div>
 <div id="modal" role="dialog" aria-modal="true"><div class="box">
   <h3>Request Notes</h3>
-  <p>Your message is ready. Edit it if needed, then send it on WhatsApp or Email.</p>
+  <p>Your message is ready. Edit it if needed, then send it by Email.</p>
   <textarea id="reqText"></textarea>
-  <div class="btns"><button class="btn" id="sendWhatsApp">WhatsApp</button><button class="btn alt" id="sendMail">Email</button></div>
+  <div class="btns"><button class="btn" id="sendMail">Send by Email</button></div>
   <div class="contact">
     <b>About &amp; Contact</b>
     <p>Vaid is a student resource portal for semester-wise Notes & Syllabus - bcz apparently surviving college without academic trauma wasn’t difficult enough 💀
@@ -163,8 +163,7 @@ const CFG = {
   brand: "VAID",
   tagline: "Notes & Syllabus",
   logo: "logo.jpg",
-  email: "studyspace.ba@gmail.com",
-  whatsapp: "917979016680"
+  email: "studyspace.ba@gmail.com"
 };
 
 const STREAMS = { ba: "B.A.", bsc: "B.Sc.", bcom: "B.Com." };
@@ -606,15 +605,6 @@ function toast(message) {
   toastTimer = setTimeout(() => node.classList.remove("on"), 2600);
 }
 
-/* window.open with "noopener" always returns null, so open links through a real anchor. */
-function openLink(url) {
-  const a = document.createElement("a");
-  a.href = url; a.target = "_blank"; a.rel = "noopener";
-  document.body.appendChild(a); a.click(); a.remove();
-}
-$("sendWhatsApp").onclick = () => {
-  openLink(`https://wa.me/${CFG.whatsapp}?text=${encodeURIComponent($("reqText").value)}`);
-};
 $("sendMail").onclick = () => {
   const subject = encodeURIComponent(`Notes request - ${CFG.brand}`);
   const body = encodeURIComponent($("reqText").value);
