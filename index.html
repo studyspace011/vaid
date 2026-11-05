@@ -317,14 +317,38 @@ function labels() {
   if (path.length > 4) result.push(BYID[path[4]]?.code || "");
   return result;
 }
+
 function requestText(paper, kind = "notes") {
+  const type = kind.toLowerCase() === "syllabus" ? "Syllabus" : "Notes";
+
   if (paper) {
-    const stream = paper.st !== "common" ? `${STREAMS[paper.st] || paper.st} ` : "";
-    const department = paper.dept && paper.dept !== "Common" ? `${paper.dept} ` : "";
-    return `Hlw! Please share the ${kind} for ${stream}Semester ${paper.sem}, ${department}${paper.code} (${paper.name}). Thank you.`;
+    const stream = paper.st !== "common"
+      ? (STREAMS[paper.st] || paper.st)
+      : "Common";
+
+    return [
+      `Request Type: ${type}`,
+      `Course: ${stream}`,
+      `Semester: ${paper.sem}`,
+      `Department: ${paper.dept || "Common"}`,
+      `Paper: ${paper.name}`,
+      `Paper Code: ${paper.code}`,
+      "",
+      `Hello! I would like to request the ${type.toLowerCase()} for the above paper.`,
+      "Thank you!"
+    ].join("\n");
   }
+
   const current = labels();
-  return `Hlw! I need study material for ${current.length ? current.join(" > ") : "the college courses"}.\nPaper/Subject: `;
+
+  return [
+    `Request Type: ${type}`,
+    `Study Area: ${current.length ? current.join(" > ") : "General"}`,
+    "Paper/Subject: Please specify",
+    "",
+    `Hello! I would like to request the ${type.toLowerCase()}.`,
+    "Thank you!"
+  ].join("\n");
 }
 
 /* Small reusable UI pieces */
